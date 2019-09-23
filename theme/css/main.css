@@ -2183,7 +2183,7 @@
 
 			#main > section.one {
 				background-color: #81918E;
-				background-image: url("../../images/new_cover3.JPG");
+				background-image: url("../images/new_cover3.JPG");
 			}
 
 			#main > section.two {
@@ -2567,3 +2567,57 @@
     list-style-type: circle;
     text-align: left;
 } 
+
+
+
+/*.title{
+	background: gray;
+	color: white;
+}*/
+
+.section-post{
+	
+}
+
+.post{
+	color: #888;
+	text-align:justify;
+
+}
+
+.title-link-post{
+	color: white;
+}
+
+
+
+
+@media (min-width: 0px) {
+	.post-text{
+		margin: 0px 20px 20px 20px;
+	}	
+}
+
+@media (min-width: 500px) {
+	.post-text{
+		margin: 0px 50px 50px 50px;
+	}	
+}
+
+@media (min-width: 700px) {
+	.post-text{
+		margin: 0px 170px 170px 170px;
+	}	
+}
+
+@media (min-width: 1500px) {
+	.post-text{
+		margin: 0px 320px 320px 320px;
+	}	
+}
+
+@media (min-width: 1500px) {
+	.post-text{
+		margin: 0px 380px 380px 380px;
+	}	
+}
