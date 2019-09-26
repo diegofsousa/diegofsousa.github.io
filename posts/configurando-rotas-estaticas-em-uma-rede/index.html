@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Diego Fernando - Hello World!</title>
+		<title>Diego Fernando - Configurando rotas estáticas em uma rede</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="https://diegofernando.dev/theme/js/ie/html5shiv.js"></script><![endif]-->
@@ -77,23 +77,24 @@
 	<header>
     <h2 class="entry-title">
       <a class="title-link-post" href="" rel="bookmark"
-         title="Permalink to Hello World!">Hello World!</a></h2>
+         title="Permalink to Configurando rotas estáticas em uma rede">Configurando rotas estáticas em uma rede</a></h2>
  
   </header>
   <footer class="post-info">
     <time class="published" datetime="">
-      <i class="fa fa-calendar-o" aria-hidden="true"></i> seg 23 setembro 2019
+      <i class="fa fa-calendar-o" aria-hidden="true"></i> qui 26 setembro 2019
     </time>
     <address class="vcard author">
       <i class="fa fa-user" aria-hidden="true"></i> <a class="url fn" href="https://diegofernando.dev/author/diego-fernando.html">Diego Fernando</a>
     </address>
     <div class="category">
-        <i class="fa fa-book" aria-hidden="true"></i> <a href="https://diegofernando.dev/category/reflexoes.html">Reflexões</a>
+        <i class="fa fa-book" aria-hidden="true"></i> <a href="https://diegofernando.dev/category/redes-de-computadores.html">Redes de computadores</a>
     </div>
     <div class="tags">
     	<i class="fa fa-tags" aria-hidden="true"></i>
         Tags:
-        	<a href="https://diegofernando.dev/tag/tecnologia.html">#tecnologia </a>
+        	<a href="https://diegofernando.dev/tag/laboratorio.html">#laboratório </a>
+        	<a href="https://diegofernando.dev/tag/cisco.html">#cisco </a>
     </div>
   </footer><!-- /.post-info -->
 
@@ -101,9 +102,34 @@
 
   <section id="post" class="entry-content section-post">
   	<div class="post-text post">
-  	<h1>Hello World!!!</h1>
-<p>Olá, muito prazer. Sou o Diego Fernando e este é o primeiro post deste blog. É uma imensa satisfação compartilhar com vocês um pouco de mim e do que eu estudo. Em princípio, este site foi criado, tanto para evoluir para meu auto-aprendizado, como para contribuir com vocês apaixonados por tecnologia. Pretendo aqui, poder trocar figurinhas sobre os assuntos acerca do Desenvolvimento, Redes, TIC's e inovação.</p>
-<p>Sejam bem vindos!</p>  
+  	<p>Imagine o seguinte cenário: temos uma tarefas de criar uma comunicação entre duas redes diferentes. Em cada rede existe um roteador na borda e, claramente, devemos implantar um outro roteador que possa interconectar essas duas redes. As redes são:
+<b></p>
+<div class="highlight"><pre><span></span><span class="n">router0</span><span class="o">:</span> <span class="mf">10.10</span><span class="o">.</span><span class="mf">0.0</span> <span class="o">/</span><span class="mi">16</span>
+<span class="n">router2</span><span class="o">:</span> <span class="mf">10.20</span><span class="o">.</span><span class="mf">0.0</span> <span class="o">/</span><span class="mi">16</span>
+</pre></div>
+
+
+<p></b></p>
+<p>Iremos então adicionar um terceiro router e iremos chamá-lo de "router1". Ao efetuar a conexão, com todas as configurações DTE/DCE nas duas pontas devidamente configuradas, ainda obtemos erro de PING de uma ponta a outra. Isso acontece pelo fato de não existir nenhuma rota de "router0" para "router2" e vice-versa.</p>
+<p>Entramos no nosso "router0" em modo config e criamos uma rota estática para "router2" com o comando "iproute":</p>
+<p><b></p>
+<div class="highlight"><pre><span></span><span class="n">ip</span> <span class="n">route</span> <span class="mi">10</span><span class="p">.</span><span class="mi">20</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="mi">255</span><span class="p">.</span><span class="mi">255</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="mi">10</span><span class="p">.</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span>
+</pre></div>
+
+
+<p></b></p>
+<p>Neste contexto o primeiro endereço IP refere-se a rede que se deseja alcançar e o segundo IP é a mascara específica. O último endereço indica o meio em que vamos alcançar nossa rede desejada, ou seja o IP da inteface conectada ao "router1". Nossa topologia segue então a seguinte figura:</p>
+<p><center>
+<img alt="Rota estática" src="/images/esquematico-rota-estatica.JPG">
+</center></p>
+<p>Não devemos esquecer de efetuar o mesmo procedimento no "router2":</p>
+<p><b></p>
+<div class="highlight"><pre><span></span><span class="n">ip</span> <span class="n">route</span> <span class="mi">10</span><span class="p">.</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="mi">255</span><span class="p">.</span><span class="mi">255</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="mi">10</span><span class="p">.</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span>
+</pre></div>
+
+
+<p></b></p>
+<p>Observe que neste caso alteramos o IP do nosso roteador do meio, pois este é o IP que nosso "router2" se conecta ao "router1". Efetuando o comando PING de uma ponta a outra, podemos verificar que agora temos conexão.</p>  
 	</div>
   </section><!-- /.entry-content -->
 
@@ -170,7 +196,7 @@ s.setAttribute('data-timestamp', +new Date());
 	filter: blur(2px) grayscale(100%) brightness(50%); contrast(1);
 
 	/* The image used */
-	background-image: url("https://diegofernando.dev/images/fibra.jpg") !important;
+	background-image: url("https://diegofernando.dev/images/cisco.jpg") !important;
 	
 
 	height: 400px;

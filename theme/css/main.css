@@ -2183,7 +2183,7 @@
 
 			#main > section.one {
 				background-color: #81918E;
-				background-image: url("../images/new_cover3.JPG");
+				background-image: url("../images/fiber.jpg");
 			}
 
 			#main > section.two {
@@ -2620,4 +2620,8 @@
 	.post-text{
 		margin: 0px 380px 380px 380px;
 	}	
+}
+
+div#prefooter {
+	height: 200px;
 }
