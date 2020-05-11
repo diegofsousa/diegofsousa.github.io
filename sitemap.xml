@@ -4,77 +4,77 @@ xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitem
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>http://diegofernando.dev/</loc>
-<lastmod>2020-05-11T01:27:28-00:00</lastmod>
+<loc>https://diegofernando.dev/</loc>
+<lastmod>2020-05-11T01:35:53-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/tags.html</loc>
-<lastmod>2020-05-11T01:27:28-00:00</lastmod>
+<loc>https://diegofernando.dev/tags.html</loc>
+<lastmod>2020-05-11T01:35:53-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/categories.html</loc>
-<lastmod>2020-05-11T01:27:28-00:00</lastmod>
+<loc>https://diegofernando.dev/categories.html</loc>
+<lastmod>2020-05-11T01:35:53-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/authors.html</loc>
-<lastmod>2020-05-11T01:27:28-00:00</lastmod>
+<loc>https://diegofernando.dev/authors.html</loc>
+<lastmod>2020-05-11T01:35:53-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/archives.html</loc>
-<lastmod>2020-05-11T01:27:28-00:00</lastmod>
+<loc>https://diegofernando.dev/archives.html</loc>
+<lastmod>2020-05-11T01:35:53-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/pages/about/</loc>
+<loc>https://diegofernando.dev/pages/about/</loc>
 <lastmod>2020-05-11T21:05:00-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html</loc>
+<loc>https://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html</loc>
 <lastmod>2019-09-26T00:45:00-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/category/misc</loc>
+<loc>https://diegofernando.dev/category/misc</loc>
 <lastmod>2019-09-26T00:45:00-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/tag/laboratorio</loc>
+<loc>https://diegofernando.dev/tag/laboratorio</loc>
 <lastmod>2019-09-26T00:45:00-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/tag/cisco</loc>
+<loc>https://diegofernando.dev/tag/cisco</loc>
 <lastmod>2019-09-26T00:45:00-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://diegofernando.dev/author/diego</loc>
+<loc>https://diegofernando.dev/author/diego</loc>
 <lastmod>2019-09-26T00:45:00-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
