@@ -36,7 +36,7 @@
 
 
 
-    <meta name="description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso...">
+    <meta name="description" content="Uma das mais famosas IDE's (Integrated Development Environment) para a criação de programas em Java é o Eclipse. O seu uso simples torna...">
 
     <meta name="author" content="diego">
 
@@ -52,7 +52,7 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Diego Fernando"/>
 <meta property="og:title" content="[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu"/>
-<meta property="og:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso..."/>
+<meta property="og:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para a criação de programas em Java é o Eclipse. O seu uso simples torna..."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html"/>
 <meta property="og:type" content="article"/>
@@ -76,7 +76,7 @@
 
         <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/tool.jpg">
 
-      <meta name="twitter:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso...">
+      <meta name="twitter:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para a criação de programas em Java é o Eclipse. O seu uso simples torna...">
 
 <script type="application/ld+json">
 {
@@ -93,7 +93,7 @@
   },
   "image": "https://diegofernando.dev/assets/images/tool.jpg",
   "url": "https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html",
-  "description": "Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso..."
+  "description": "Uma das mais famosas IDE's (Integrated Development Environment) para a criação de programas em Java é o Eclipse. O seu uso simples torna..."
 }
 </script>
 </head>
@@ -147,40 +147,40 @@
         <article class="post">
         <div class="inner">
             <section class="post-content">
-                <p>Uma das mais famosas IDE's (<em>Integrated Development Environment</em>) para o desenvolvimento de programas em Java é o <strong>Eclipse</strong>. O seu uso simples torna o desenvolvimento mais produtivo. Já o <strong>Spring Tools 4</strong> (ou simplemente <strong>STS</strong>) é basicamente um plugin que existe para os ambientes de desenvolvimento Eclipse, Visual Studio Code e Theia que tem uma série de ferramentas para o <strong>Spring</strong>, Framework <em>Web</em> Java. </p>
-<p>Ao efetuar o download na versão Eclipse basicamente estamos baixando o Eclipse também, pois o STS funciona como uma extensão da IDE. A maneira mais básica de começar a utilizar a IDE no ambiente Linux é baixá-la diretamente do <a href="https://spring.io/tools">site oficial</a> e rodar o arquivo executável. Veja o GIF a seguir.</p>
+                <p>Uma das mais famosas IDE's (<em>Integrated Development Environment</em>) para a criação de programas em Java é o <strong>Eclipse</strong>. O seu uso simples torna o desenvolvimento bastante produtivo. Já o <strong>Spring Tools 4</strong> (ou simplemente <strong>STS</strong>) é basicamente um <em>plugin</em> criado exclusivamente para o framework <em>web</em> Java <strong>Spring</strong> que tem suporte para o ambientes <strong>Eclipse</strong>, <strong>Visual Studio Code</strong> e <strong>Theia</strong>. </p>
+<p>Mesmo sendo um <em>plugin</em>, ao efetuar o <em>download</em> do STS, estamos também baixando o Eclipse, pois o STS funciona como uma extensão dessa IDE. A maneira mais básica de começar a utilizar o STS no ambiente Linux é baixá-la diretamente do <a href="https://spring.io/tools">site oficial</a> e rodar o arquivo executável. Veja o GIF a seguir.</p>
 <p><img alt="Inicialização manual STS" src="/assets/images/sts-manual.gif"><em>Inicialização manual do STS.</em></p>
-<p>Essa tarefa começa a ficar incômoda quando toda vez temos que abrir um diretório e ter que rodar. Os perfeccionistas (como eu) acabam achando essa uma abordagem ruim. Nos próximos passos iremos ver como inserir o software no lançador e ainda como configurar como deixá-lo nos favoritos.</p>
+<p>Essa tarefa começa a ficar incômoda quando toda vez temos que abrir um diretório e ter que rodar. Os perfeccionistas (como eu) acabam achando essa uma abordagem ruim. Nos próximos passos iremos ver como inserir o <em>software</em> no lançador (<em>launch</em>) e ainda como configurar para deixá-lo nos favoritos.</p>
 <h2>Mão na massa</h2>
 <blockquote>
-<p>⚠️ Disclaimer: Esse procedimento foi testado com o STS na versão <code>4.6.1</code> e o Ubunto na versão <code>18.04</code>.</p>
+<p>⚠️ <em>Disclaimer</em>: Esse procedimento foi testado com o STS na versão <code>4.6.1</code> e o Ubuntu na versão <code>18.04</code>.</p>
 </blockquote>
-<p>O primeiro passo é mover a pasta extraida do download para o diretório <code>/opt</code>:</p>
-<div class="highlight"><pre><span></span>sudo mv &lt;pasta-sts&gt; /opt
+<p>O primeiro passo é mover a pasta extraída do download para o diretório <code>/opt</code>:</p>
+<div class="highlight"><pre><span></span>sudo mv &lt;diretorio-sts&gt; /opt
 </pre></div>
 
 
-<p>Certo, vamos então criar um ícone para o lançador. Todos o ícones de softwares instalados no Ubuntu 18.04 ficam em <code>/usr/share/applications</code>. Entre nesse diretório e crie um arquivo <code>"sts.desktop"</code> com o seguinte conteúdo:</p>
+<p>Certo, vamos então criar um ícone para o lançador. Todos o ícones de <em>softwares</em> instalados no Ubuntu 18.04 ficam em <code>/usr/share/applications</code>. Entre nesse diretório e crie um arquivo <code>"sts.desktop"</code> com o seguinte conteúdo:</p>
 <p>Arquivo <code>"sts.desktop"</code></p>
 <div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
 <span class="nv">Type</span><span class="o">=</span>Application
 <span class="nv">Name</span><span class="o">=</span>sts
 <span class="nv">Comment</span><span class="o">=</span>Spring Tool Suite
-<span class="nv">Icon</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/icon.xpm
-<span class="nv">Exec</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/SpringToolSuite4
+<span class="nv">Icon</span><span class="o">=</span>/opt/&lt;diretorio-sts&gt;/icon.xpm
+<span class="nv">Exec</span><span class="o">=</span>/opt/&lt;diretorio-sts&gt;/SpringToolSuite4
 <span class="nv">Terminal</span><span class="o">=</span><span class="nb">false</span>
 <span class="nv">Categories</span><span class="o">=</span>Development<span class="p">;</span>IDE<span class="p">;</span>Java<span class="p">;</span>
 </pre></div>
 
 
-<p>Substitua <code>&lt;pasta-sts&gt;</code> pela pasta que você nomeou no diretório <code>/opt</code>.</p>
+<p>Substitua <code>&lt;diretorio-sts&gt;</code> pela pasta que você nomeou dentro de <code>/opt</code>.</p>
 <p>Se tudo tiver corrido bem, já podemos encontrar o STS entre os ícones do lançador. </p>
-<p>Esse processo funciona, até o momento em que adicionamos o ícone a barra de favoritos. Até conseguimos inseri-lo na barra, mas ao executar notamos que ele duplica o ícone.</p>
+<p>Esse processo funciona até o momento em que adicionamos o ícone a barra de favoritos. Até conseguimos inseri-lo na barra, mas ao executar notamos que ele duplica o ícone:</p>
 <p><img alt="Inicialização com ícone duplicado" src="/assets/images/sts-duplicated.jpeg"><em>Inicialização com ícone duplicado.</em></p>
-<p>Para corrigir esse bug, voltamos ao diretório <code>/usr/share/applications</code> para editar o nosso 
-<code>"sts.desktop"</code>. Vamos adicionar a linha <code>StartupWMClass=Spring Tool Suite 4</code>, o valor <strong>Spring Tool Suite 4</strong> deve ser exatamente igual ao nome do software. Felizmente existe uma forma de assegurar isso com o comando <code>xprop WM_CLASS</code>:</p>
+<p>Para corrigir esse <em>bug</em>, voltamos ao diretório <code>/usr/share/applications</code> para editar o nosso 
+<code>"sts.desktop"</code>. Iremos adicionar a linha <code>StartupWMClass=Spring Tool Suite 4</code> ao arquivo. O valor <strong>Spring Tool Suite 4</strong> deve ser exatamente igual ao nome do <em>software</em>. Felizmente existe uma forma de assegurar isso com o comando <code>xprop WM_CLASS</code>:</p>
 <p><img alt="Adquirindo nome absoluto do software" src="/assets/images/sts-get-name-software.gif"><em>Adquirindo nome absoluto do software.</em></p>
-<p>Dessa forma, o arquivo <code>"sts.desktop"</code> final fica:</p>
+<p>Dessa forma, o arquivo final <code>"sts.desktop"</code>  fica:</p>
 <div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
 <span class="nv">Type</span><span class="o">=</span>Application
 <span class="nv">Name</span><span class="o">=</span>sts

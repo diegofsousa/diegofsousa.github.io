@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/</loc>
-<lastmod>2020-05-17T02:11:11-00:00</lastmod>
+<lastmod>2020-05-17T02:33:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tags.html</loc>
-<lastmod>2020-05-17T02:11:11-00:00</lastmod>
+<lastmod>2020-05-17T02:33:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/categories.html</loc>
-<lastmod>2020-05-17T02:11:11-00:00</lastmod>
+<lastmod>2020-05-17T02:33:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/authors.html</loc>
-<lastmod>2020-05-17T02:11:11-00:00</lastmod>
+<lastmod>2020-05-17T02:33:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/archives.html</loc>
-<lastmod>2020-05-17T02:11:11-00:00</lastmod>
+<lastmod>2020-05-17T02:33:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
