@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+
+  <title>[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu</title>
+
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" rel="canonical" />
+  <!-- Feed -->
+
+  <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="programação">
+    <meta name="tags" content="java">
+    <meta name="tags" content="spring">
+    <meta name="tags" content="ide">
+    <meta name="tags" content="eclipse">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu"/>
+<meta property="og:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-05-16 23:54:00-03:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://diegofernando.dev/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="programação"/>
+<meta property="article:tag" content="java"/>
+<meta property="article:tag" content="spring"/>
+<meta property="article:tag" content="ide"/>
+<meta property="article:tag" content="eclipse"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/tool.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu">
+    <meta name="twitter:url" content="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/tool.jpg">
+
+      <meta name="twitter:description" content="Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso...">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu",
+  "headline": "[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu",
+  "datePublished": "2020-05-16 23:54:00-03:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "diego",
+    "url": "https://diegofernando.dev/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/tool.jpg",
+  "url": "https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html",
+  "description": "Uma das mais famosas IDE's (Integrated Development Environment) para o desenvolvimento de programas em Java é o Eclipse. O seu uso..."
+}
+</script>
+</head>
+<!-- TODO : Body class -->
+<body class="home-template">
+
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
+    <ul>
+
+              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
+
+    </ul>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" class="has-cover">
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
+            | <time datetime="16 mai 2020">16 mai 2020</time>
+        </span>
+        <!-- TODO : Modified check -->
+            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/tool.jpg')">
+      </div>
+    </header>
+
+  <section id="wrapper">
+    <a class="hidden-close"></a>
+
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Uma das mais famosas IDE's (<em>Integrated Development Environment</em>) para o desenvolvimento de programas em Java é o <strong>Eclipse</strong>. O seu uso simples torna o desenvolvimento mais produtivo. Já o <strong>Spring Tools 4</strong> (ou simplemente <strong>STS</strong>) é basicamente um plugin que existe para os ambientes de desenvolvimento Eclipse, Visual Studio Code e Theia que tem uma série de ferramentas para o <strong>Spring</strong>, Framework <em>Web</em> Java. </p>
+<p>Ao efetuar o download na versão Eclipse basicamente estamos baixando o Eclipse também, pois o STS funciona como uma extensão da IDE. A maneira mais básica de começar a utilizar a IDE no ambiente Linux é baixá-la diretamente do <a href="https://spring.io/tools">site oficial</a> e rodar o arquivo executável. Veja o GIF a seguir.</p>
+<p><img alt="Inicialização manual STS" src="/assets/images/sts-manual.gif"><em>Inicialização manual do STS.</em></p>
+<p>Essa tarefa começa a ficar incômoda quando toda vez temos que abrir um diretório e ter que rodar. Os perfeccionistas (como eu) acabam achando essa uma abordagem ruim. Nos próximos passos iremos ver como inserir o software no lançador e ainda como configurar como deixá-lo nos favoritos.</p>
+<h2>Mão na massa</h2>
+<blockquote>
+<p>⚠️ Disclaimer: Esse procedimento foi testado com o STS na versão <code>4.6.1</code> e o Ubunto na versão <code>18.04</code>.</p>
+</blockquote>
+<p>O primeiro passo é mover a pasta extraida do download para o diretório <code>/opt</code>:</p>
+<div class="highlight"><pre><span></span>sudo mv &lt;pasta-sts&gt; /opt
+</pre></div>
+
+
+<p>Certo, vamos então criar um ícone para o lançador. Todos o ícones de softwares instalados no Ubuntu 18.04 ficam em <code>/usr/share/applications</code>. Entre nesse diretório e crie um arquivo <code>"sts.desktop"</code> com o seguinte conteúdo:</p>
+<p>Arquivo <code>"sts.desktop"</code></p>
+<div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
+<span class="nv">Type</span><span class="o">=</span>Application
+<span class="nv">Name</span><span class="o">=</span>sts
+<span class="nv">Comment</span><span class="o">=</span>Spring Tool Suite
+<span class="nv">Icon</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/icon.xpm
+<span class="nv">Exec</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/SpringToolSuite4
+<span class="nv">Terminal</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">Categories</span><span class="o">=</span>Development<span class="p">;</span>IDE<span class="p">;</span>Java<span class="p">;</span>
+</pre></div>
+
+
+<p>Substitua <code>&lt;pasta-sts&gt;</code> pela pasta que você nomeou no diretório <code>/opt</code>.</p>
+<p>Se tudo tiver corrido bem, já podemos encontrar o STS entre os ícones do lançador. </p>
+<p>Esse processo funciona, até o momento em que adicionamos o ícone a barra de favoritos. Até conseguimos inseri-lo na barra, mas ao executar notamos que ele duplica o ícone.</p>
+<p><img alt="Inicialização com ícone duplicado" src="/assets/images/sts-duplicated.jpeg"><em>Inicialização com ícone duplicado.</em></p>
+<p>Para corrigir esse bug, voltamos ao diretório <code>/usr/share/applications</code> para editar o nosso 
+<code>"sts.desktop"</code>. Vamos adicionar a linha <code>StartupWMClass=Spring Tool Suite 4</code>, o valor <strong>Spring Tool Suite 4</strong> deve ser exatamente igual ao nome do software. Felizmente existe uma forma de assegurar isso com o comando <code>xprop WM_CLASS</code>:</p>
+<p><img alt="Adquirindo nome absoluto do software" src="/assets/images/sts-get-name-software.gif"><em>Adquirindo nome absoluto do software.</em></p>
+<p>Dessa forma, o arquivo <code>"sts.desktop"</code> final fica:</p>
+<div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
+<span class="nv">Type</span><span class="o">=</span>Application
+<span class="nv">Name</span><span class="o">=</span>sts
+<span class="nv">Comment</span><span class="o">=</span>Spring Tool Suite
+<span class="nv">Icon</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/icon.xpm
+<span class="nv">Exec</span><span class="o">=</span>/opt/&lt;pasta-sts&gt;/SpringToolSuite4
+<span class="nv">Terminal</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">Categories</span><span class="o">=</span>Development<span class="p">;</span>IDE<span class="p">;</span>Java<span class="p">;</span>
+<span class="nv">StartupWMClass</span><span class="o">=</span>Spring Tool Suite <span class="m">4</span>
+</pre></div>
+
+
+<p>Ao fazer isso, adicione novamente o ícone aos favoritos e confirme se funcionou. O comportamento deve ser similar ao do exemplo abaixo:</p>
+<p><img alt="STS disponível no lançador" src="/assets/images/sts-on-launch.gif"><em>STS disponível no lançador.</em></p>
+<p>Comente se funcionou (ou não) aqui em baixo. :)</p>
+            </section>
+
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu&amp;url=https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <a class="googleplus" href="https://plus.google.com/share?url=https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <i class="ic ic-googleplus"></i><span class="hidden">Google+</span>
+                    </a>
+                    <div class="clear"></div>
+                </div>
+
+                <aside class="post-tags">
+<a href="https://diegofernando.dev/tag/programacao">programação</a><a href="https://diegofernando.dev/tag/java">java</a><a href="https://diegofernando.dev/tag/spring">spring</a><a href="https://diegofernando.dev/tag/ide">ide</a><a href="https://diegofernando.dev/tag/eclipse">eclipse</a>                </aside>
+
+                <div class="clear"></div>
+
+                <aside class="post-author">
+
+
+                        <figure class="post-author-avatar">
+                            <img src="https://diegofernando.dev/assets/images/avatar.jpeg" alt="Diego Fernando" />
+                        </figure>
+                    <div class="post-author-bio">
+                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
+                            <p class="post-author-about">Now is better than never.</p>
+                            <span class="post-author-location"><i class="ic ic-location"></i> Fortaleza/CE/Brazil</span>
+                            <span class="post-author-website"><a href="http://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
+                        <!-- Social linkes in alphabet order. -->
+                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
+                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
+                    </div>
+                    <div class="clear"></div>
+                </aside>
+
+                </section>
+
+                <script type="text/javascript">
+                    var disqus = 'diegofsousa';
+                    var disqus_shortname = 'diegofsousa';
+                    var disqus_identifier = '/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html';
+                    var disqus_url = 'https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html';
+                </script>
+                <noscript>Please enable JavaScript to view the comments.</noscript>
+                <section class="post-comments">
+                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" >Show Comments</a>
+                    <div id="disqus_thread"></div>
+                </section>
+
+                <aside class="post-nav">
+                    <a class="post-nav-prev" href="https://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html">
+                        <section class="post-nav-teaser">
+                            <i class="ic ic-arrow-right"></i>
+                                <h2 class="post-nav-title">[PT] Configurando rotas estáticas em uma rede</h2>
+                            <p class="post-nav-excerpt">Imagine o seguinte cenário: temos uma tarefas de criar uma comunicação entre duas...</p>
+                        </section>
+                    </a>
+                    <div class="clear"></div>
+                </aside>
+
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
+
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
+        </section>
+      </div>
+    </footer>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+
+<script type="text/javascript">
+    var disqus_shortname = 'diegofsousa';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
