@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+
+  <title>[PT] Podcast aula - Scala e microserviços</title>
+
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/podcast-aula-scala-microservicos.html" rel="canonical" />
+  <!-- Feed -->
+
+  <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="programação">
+    <meta name="tags" content="scala">
+    <meta name="tags" content="microserviços">
+    <meta name="tags" content="lagom">
+    <meta name="tags" content="aula">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="[PT] Podcast aula - Scala e microserviços"/>
+<meta property="og:description" content="Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/podcast-aula-scala-microservicos.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-05-24 01:47:00-03:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://diegofernando.dev/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="programação"/>
+<meta property="article:tag" content="scala"/>
+<meta property="article:tag" content="microserviços"/>
+<meta property="article:tag" content="lagom"/>
+<meta property="article:tag" content="aula"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/scala-spider-web.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="[PT] Podcast aula - Scala e microserviços">
+    <meta name="twitter:url" content="https://diegofernando.dev/podcast-aula-scala-microservicos.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/scala-spider-web.jpg">
+
+      <meta name="twitter:description" content="Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é...">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "[PT] Podcast aula - Scala e microserviços",
+  "headline": "[PT] Podcast aula - Scala e microserviços",
+  "datePublished": "2020-05-24 01:47:00-03:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "diego",
+    "url": "https://diegofernando.dev/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/scala-spider-web.jpg",
+  "url": "https://diegofernando.dev/podcast-aula-scala-microservicos.html",
+  "description": "Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é..."
+}
+</script>
+</head>
+<!-- TODO : Body class -->
+<body class="home-template">
+
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
+    <ul>
+
+              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
+
+    </ul>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" class="has-cover">
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">[PT] Podcast aula - Scala e microserviços</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
+            | <time datetime="24 mai 2020">24 mai 2020</time>
+        </span>
+        <!-- TODO : Modified check -->
+            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/scala-spider-web.jpg')">
+      </div>
+    </header>
+
+  <section id="wrapper">
+    <a class="hidden-close"></a>
+
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é ficar em casa para que o cenário não se agrave ainda mais. Em virtude da circunstância, os amigos do <strong>DevCapivara</strong> tiveram a brilhante ideia de fazer um podcast/aula com bastante conteúdo legal durante duas semanas.</p>
+<p>Entre os dias 22 de março e 04 de abril o podcast abordou conteúdos sobre <strong>NodeJS</strong>, <strong>microserviços</strong>, <strong>Scala</strong>, <strong>Clojure</strong>, <strong>testes de software</strong>, <strong>programação funcional</strong>, <strong>Deep Learning</strong>, <strong>Django Rest Framework</strong>, <strong>CI/CD</strong>, <strong>React Native</strong>, <strong>sistemas de autenticação</strong>, <strong>Unity e Blender</strong>, <strong>mercado/inovação</strong> e <strong>Sinatra</strong>. Todos os detalhes estão no <a href="https://devcapivara.com.br">site</a> do projeto.</p>
+<p>No meu podcast/aula falei um pouco sobre a linguagem <strong>Scala</strong> e seu uso no mundo web. Também fizemos um bate-papo bastante contribuinte sobre microserviços. Trouxe dois exemplos de aplicação usando os frameworks <a href="https://www.playframework.com/">Play</a> e <a href="https://www.lagomframework.com/">Lagom</a>. Este último com várias "baterias embutidas" para criação de microserviços. Confira a seguir, na íntegra:</p>
+<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style>
+
+<div class='embed-container'><iframe src='https://www.youtube.com/embed/SR_DFsclZkw' frameborder='0' allowfullscreen></iframe></div>
+
+<p><em>Aula na íntegra</em></p>
+<p><img alt="Banner de divulgação" src="/assets/images/scala-podcast.jpeg"><em>Banner de divulgação.</em></p>
+<p>O repositório com o código da aula está no <strong>Github</strong>, neste <a href="https://github.com/diegofsousa/devcapivara-microservice">link</a>. Agredeço a oportunidade ao pessoal do DevCapivara e parabenizo pela atitude. Já esperando o próximo evento :).</p>
+            </section>
+
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=[PT] Podcast aula - Scala e microserviços&amp;url=https://diegofernando.dev/podcast-aula-scala-microservicos.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/podcast-aula-scala-microservicos.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <a class="googleplus" href="https://plus.google.com/share?url=https://diegofernando.dev/podcast-aula-scala-microservicos.html" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <i class="ic ic-googleplus"></i><span class="hidden">Google+</span>
+                    </a>
+                    <div class="clear"></div>
+                </div>
+
+                <aside class="post-tags">
+<a href="https://diegofernando.dev/tag/programacao">programação</a><a href="https://diegofernando.dev/tag/scala">scala</a><a href="https://diegofernando.dev/tag/microservicos">microserviços</a><a href="https://diegofernando.dev/tag/lagom">lagom</a><a href="https://diegofernando.dev/tag/aula">aula</a>                </aside>
+
+                <div class="clear"></div>
+
+                <aside class="post-author">
+
+
+                        <figure class="post-author-avatar">
+                            <img src="https://diegofernando.dev/assets/images/avatar.jpeg" alt="Diego Fernando" />
+                        </figure>
+                    <div class="post-author-bio">
+                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
+                            <p class="post-author-about">Now is better than never.</p>
+                            <span class="post-author-location"><i class="ic ic-location"></i> Fortaleza/CE/Brazil</span>
+                            <span class="post-author-website"><a href="http://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
+                        <!-- Social linkes in alphabet order. -->
+                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
+                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
+                    </div>
+                    <div class="clear"></div>
+                </aside>
+
+                </section>
+
+                <script type="text/javascript">
+                    var disqus = 'diegofsousa';
+                    var disqus_shortname = 'diegofsousa';
+                    var disqus_identifier = '/podcast-aula-scala-microservicos.html';
+                    var disqus_url = 'https://diegofernando.dev/podcast-aula-scala-microservicos.html';
+                </script>
+                <noscript>Please enable JavaScript to view the comments.</noscript>
+                <section class="post-comments">
+                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/podcast-aula-scala-microservicos.html" >Show Comments</a>
+                    <div id="disqus_thread"></div>
+                </section>
+
+                <aside class="post-nav">
+                    <a class="post-nav-prev" href="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html">
+                        <section class="post-nav-teaser">
+                            <i class="ic ic-arrow-right"></i>
+                                <h2 class="post-nav-title">[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu</h2>
+                            <p class="post-nav-excerpt">Uma das mais famosas IDE's (Integrated Development Environment) para a criação de...</p>
+                        </section>
+                    </a>
+                    <div class="clear"></div>
+                </aside>
+
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
+
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
+        </section>
+      </div>
+    </footer>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+
+<script type="text/javascript">
+    var disqus_shortname = 'diegofsousa';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
