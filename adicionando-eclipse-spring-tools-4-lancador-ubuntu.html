@@ -57,7 +57,7 @@
 <meta property="og:url" content="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html"/>
 <meta property="og:type" content="article"/>
 <meta property="article:published_time" content="2020-05-16 23:54:00-03:00"/>
-<meta property="article:modified_time" content=""/>
+<meta property="article:modified_time" content="2020-05-17 02:32:46.122979-03:00"/>
 <meta property="article:author" content="https://diegofernando.dev/author/diego">
   <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
 <meta property="article:section" content="misc"/>
@@ -85,7 +85,7 @@
   "name": "[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu",
   "headline": "[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu",
   "datePublished": "2020-05-16 23:54:00-03:00",
-  "dateModified": "",
+  "dateModified": "2020-05-17 02:32:46.122979-03:00",
   "author": {
     "@type": "Person",
     "name": "diego",
@@ -135,6 +135,7 @@
             | <time datetime="16 mai 2020">16 mai 2020</time>
         </span>
         <!-- TODO : Modified check -->
+            <span class="post-meta"> | Updated on 17 mai 2020</span>
             <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/tool.jpg')">
       </div>
     </header>
@@ -156,13 +157,12 @@
 <p>⚠️ <em>Disclaimer</em>: Esse procedimento foi testado com o STS na versão <code>4.6.1</code> e o Ubuntu na versão <code>18.04</code>.</p>
 </blockquote>
 <p>O primeiro passo é mover a pasta extraída do download para o diretório <code>/opt</code>:</p>
-<div class="highlight"><pre><span></span>sudo mv &lt;diretorio-sts&gt; /opt
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>sudo mv &lt;diretorio-sts&gt; /opt
+</code></pre></div>
 
 <p>Certo, vamos então criar um ícone para o lançador. Todos o ícones de <em>softwares</em> instalados no Ubuntu 18.04 ficam em <code>/usr/share/applications</code>. Entre nesse diretório e crie um arquivo <code>"sts.desktop"</code> com o seguinte conteúdo:</p>
 <p>Arquivo <code>"sts.desktop"</code></p>
-<div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Desktop Entry<span class="o">]</span>
 <span class="nv">Type</span><span class="o">=</span>Application
 <span class="nv">Name</span><span class="o">=</span>sts
 <span class="nv">Comment</span><span class="o">=</span>Spring Tool Suite
@@ -170,8 +170,7 @@
 <span class="nv">Exec</span><span class="o">=</span>/opt/&lt;diretorio-sts&gt;/SpringToolSuite4
 <span class="nv">Terminal</span><span class="o">=</span><span class="nb">false</span>
 <span class="nv">Categories</span><span class="o">=</span>Development<span class="p">;</span>IDE<span class="p">;</span>Java<span class="p">;</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Substitua <code>&lt;diretorio-sts&gt;</code> pela pasta que você nomeou dentro de <code>/opt</code>.</p>
 <p>Se tudo tiver corrido bem, já podemos encontrar o STS entre os ícones do lançador. </p>
@@ -181,7 +180,7 @@
 <code>"sts.desktop"</code>. Iremos adicionar a linha <code>StartupWMClass=Spring Tool Suite 4</code> ao arquivo. O valor <strong>Spring Tool Suite 4</strong> deve ser exatamente igual ao nome do <em>software</em>. Felizmente existe uma forma de assegurar isso com o comando <code>xprop WM_CLASS</code>:</p>
 <p><img alt="Adquirindo nome absoluto do software" src="/assets/images/sts-get-name-software.gif"><em>Adquirindo nome absoluto do software.</em></p>
 <p>Dessa forma, o arquivo final <code>"sts.desktop"</code>  fica:</p>
-<div class="highlight"><pre><span></span><span class="o">[</span>Desktop Entry<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Desktop Entry<span class="o">]</span>
 <span class="nv">Type</span><span class="o">=</span>Application
 <span class="nv">Name</span><span class="o">=</span>sts
 <span class="nv">Comment</span><span class="o">=</span>Spring Tool Suite
@@ -190,8 +189,7 @@
 <span class="nv">Terminal</span><span class="o">=</span><span class="nb">false</span>
 <span class="nv">Categories</span><span class="o">=</span>Development<span class="p">;</span>IDE<span class="p">;</span>Java<span class="p">;</span>
 <span class="nv">StartupWMClass</span><span class="o">=</span>Spring Tool Suite <span class="m">4</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Ao fazer isso, adicione novamente o ícone aos favoritos e confirme se funcionou. O comportamento deve ser similar ao do exemplo abaixo:</p>
 <p><img alt="STS disponível no lançador" src="/assets/images/sts-on-launch.gif"><em>STS disponível no lançador.</em></p>

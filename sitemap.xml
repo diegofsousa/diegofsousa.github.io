@@ -5,231 +5,266 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/</loc>
-<lastmod>2020-09-21T01:20:52-00:00</lastmod>
+<lastmod>2021-01-16T18:41:44-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tags.html</loc>
-<lastmod>2020-09-21T01:20:52-00:00</lastmod>
+<lastmod>2021-01-16T18:41:44-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/categories.html</loc>
-<lastmod>2020-09-21T01:20:52-00:00</lastmod>
+<lastmod>2021-01-16T18:41:44-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/authors.html</loc>
-<lastmod>2020-09-21T01:20:52-00:00</lastmod>
+<lastmod>2021-01-16T18:41:44-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/archives.html</loc>
-<lastmod>2020-09-21T01:20:52-00:00</lastmod>
+<lastmod>2021-01-16T18:41:44-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/pages/about/</loc>
-<lastmod>2020-09-20T18:50:00-03:00</lastmod>
+<lastmod>2020-09-21T00:54:33-03:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html</loc>
+<lastmod>2021-01-16T18:33:13-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html</loc>
-<lastmod>2020-09-20T18:42:00-03:00</lastmod>
+<lastmod>2020-09-20T23:45:17-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/podcast-trabalho-colaborativo-e-git.html</loc>
-<lastmod>2020-09-20T18:42:00-03:00</lastmod>
+<lastmod>2020-09-20T20:30:35-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/podcast-aula-scala-microservicos.html</loc>
-<lastmod>2020-05-24T01:47:00-03:00</lastmod>
+<lastmod>2020-09-20T18:50:36-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html</loc>
-<lastmod>2020-05-16T23:54:00-03:00</lastmod>
+<lastmod>2020-05-17T02:32:46-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html</loc>
-<lastmod>2019-09-26T00:45:00-03:00</lastmod>
+<lastmod>2020-05-11T01:06:08-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/category/misc</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://diegofernando.dev/tag/ferramental</loc>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://diegofernando.dev/tag/python</loc>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://diegofernando.dev/tag/recriacao</loc>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://diegofernando.dev/tag/dontpad</loc>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/design-pattern</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T23:45:17-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/java</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T23:45:17-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/gof</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T23:45:17-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/padrao</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T23:45:17-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/abstract-fatory</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T23:45:17-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/trabalho-colaborativo</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T20:30:35-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/git</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T20:30:35-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/github</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T20:30:35-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/spotify</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T20:30:35-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/podcast</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2020-09-20T20:30:35-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/programacao</loc>
-<lastmod>2020-05-24T01:47:00-02:34</lastmod>
+<lastmod>2020-09-20T18:50:36-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/scala</loc>
-<lastmod>2020-05-24T01:47:00-02:34</lastmod>
+<lastmod>2020-09-20T18:50:36-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/microservicos</loc>
-<lastmod>2020-05-24T01:47:00-02:34</lastmod>
+<lastmod>2020-09-20T18:50:36-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/lagom</loc>
-<lastmod>2020-05-24T01:47:00-02:34</lastmod>
+<lastmod>2020-09-20T18:50:36-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/aula</loc>
-<lastmod>2020-05-24T01:47:00-02:34</lastmod>
+<lastmod>2020-09-20T18:50:36-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/spring</loc>
-<lastmod>2020-05-16T23:54:00-02:34</lastmod>
+<lastmod>2020-05-17T02:32:46-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/ide</loc>
-<lastmod>2020-05-16T23:54:00-02:34</lastmod>
+<lastmod>2020-05-17T02:32:46-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/eclipse</loc>
-<lastmod>2020-05-16T23:54:00-02:34</lastmod>
+<lastmod>2020-05-17T02:32:46-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/laboratorio</loc>
-<lastmod>2019-09-26T00:45:00-02:34</lastmod>
+<lastmod>2020-05-11T01:06:08-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/cisco</loc>
-<lastmod>2019-09-26T00:45:00-02:34</lastmod>
+<lastmod>2020-05-11T01:06:08-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/author/diego</loc>
-<lastmod>2020-09-20T18:42:00-02:34</lastmod>
+<lastmod>2021-01-16T18:33:13-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

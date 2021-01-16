@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+
+  <title>[PT] Criando uma ferramenta para criação de notas rápidas</title>
+
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html" rel="canonical" />
+  <!-- Feed -->
+
+  <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/squad tendem a compartilhar dados entre si a todo...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="ferramental">
+    <meta name="tags" content="python">
+    <meta name="tags" content="recriação">
+    <meta name="tags" content="dontpad">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="[PT] Criando uma ferramenta para criação de notas rápidas"/>
+<meta property="og:description" content="Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/squad tendem a compartilhar dados entre si a todo..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2021-01-16 18:28:00-03:00"/>
+<meta property="article:modified_time" content="2021-01-16 18:33:13.791649-03:00"/>
+<meta property="article:author" content="https://diegofernando.dev/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="ferramental"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="recriação"/>
+<meta property="article:tag" content="dontpad"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/code.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="[PT] Criando uma ferramenta para criação de notas rápidas">
+    <meta name="twitter:url" content="https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/code.jpg">
+
+      <meta name="twitter:description" content="Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/squad tendem a compartilhar dados entre si a todo...">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "[PT] Criando uma ferramenta para criação de notas rápidas",
+  "headline": "[PT] Criando uma ferramenta para criação de notas rápidas",
+  "datePublished": "2021-01-16 18:28:00-03:00",
+  "dateModified": "2021-01-16 18:33:13.791649-03:00",
+  "author": {
+    "@type": "Person",
+    "name": "diego",
+    "url": "https://diegofernando.dev/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/code.jpg",
+  "url": "https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html",
+  "description": "Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/squad tendem a compartilhar dados entre si a todo..."
+}
+</script>
+</head>
+<!-- TODO : Body class -->
+<body class="home-template">
+
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
+    <ul>
+
+              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
+
+    </ul>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" class="has-cover">
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">[PT] Criando uma ferramenta para criação de notas rápidas</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
+            | <time datetime="16 jan 2021">16 jan 2021</time>
+        </span>
+        <!-- TODO : Modified check -->
+            <span class="post-meta"> | Updated on 16 jan 2021</span>
+            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/code.jpg')">
+      </div>
+    </header>
+
+  <section id="wrapper">
+    <a class="hidden-close"></a>
+
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/<em>squad</em> tendem a compartilhar dados entre si a todo momento. <em>Logs</em> de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação fazendo com que surja a necessidade de colar essa informação em uma ferramenta externa.</p>
+<p>Na empresa onde trabalho, por exemplo, usamos com frequencia o site <strong><a href="http://dontpad.com/">dontpad.com</a></strong>. <strong>Dontpad</strong> é uma aplicação que possibilita a criação rápida de notas a partir de um recurso definido pelo usuário. Uma sequencia de caracteres qualquer após a URL <code>http://dontpad.com</code> já torna um identificador para o conteúdo do seu texto. O Dontpad é extramente rápido e eficiente, porém observei alguns contras:</p>
+<ul>
+<li>Nenhuma privacidade e segurança. Qualquer pessoa que tiver a URL da sua nota pode visualizar o conteúdo.</li>
+<li>Nenhuma consistência. Qualquer pessoa que tiver a URL também pode alterar o conteúdo e até mesmo apagá-lo.</li>
+<li>Não é possível saber quem modificou um arquivo. Tudo é anônimo.</li>
+</ul>
+<p><img alt="Exemplo de uso do Dontpad" src="/assets/images/dontpad-hello.gif"><em>Criando uma nota pelo Dontpad.</em></p>
+<p>Algo que está se tornando cada vez mais comum no aprendizado e exercício do desenvolvimento de software nos dias atuais é a criação de projetos que simulam alguma plataforma de sucesso. Recriar, mesmo que de maneira simplória, réplicas como do UX do Instagram, backend do Uber, arquitetura do Netflix nos induzem a refletir sobre técnicas que podem usadas nesses cases.</p>
+<p>Dado isso, uni todas as características ruíns do Dontpad, joguei num balde e me desafiei a refazê-lo com algumas melhorias. Apesar de ser um serviço bem respaldado e com muitos acessos, a ideia por trás do Dontpad não é complexa. O grau de dificuldade inclusive foi maior no conjunto de funcionalidades que adicionei como diferenciais:</p>
+<ul>
+<li>A URL de uma nota é <em>hash</em> (ex: https://<url_server>/EreQR5z).</li>
+<li>Possibilidade de criar conta para guardar notas.</li>
+<li>Possibilidade de privar notas para o usuário.</li>
+<li>Capacidade de bloquear a alteração do conteúdo de uma nota.</li>
+<li>Capacidade de saber quando uma nota foi criada e a última vez que foi alterada.</li>
+<li>Capacidade de saber quem viu uma nota.</li>
+<li>Pesquisa de notas por fragmento de conteúdo.</li>
+<li>Adaptação para dispositivos móveis (responsivo).</li>
+<li>Modo escuro (<em>dark theme</em>).</li>
+</ul>
+<p>Atualmente tenho voltado os meus esforços para aprendizado e aperfeiçoamento da linguagem Java. Mas para esse projeto, preferi usar a stack formada pela linguagem <strong>Python</strong> e o framework <strong>Django</strong>. Considero como uma das maiores vantagens de usar essa tecnologia, a rapidez em que é possível levantar uma aplicação com várias baterias embutidas tais como, sistema de autenticação, migração de banco de dados. Como é de costume e projetos que envolvem algum tipo de interface gráfica, começo sempre pelo <em>wireframe</em>. A imagem abaixo são as ideias inicias das telas.</p>
+<p><img alt="Daptnod wireframe" src="/assets/images/daptnot-wireframe.jpeg"><em>Wireframe desenhado para guiar a construção das telas.</em></p>
+<p>Como até aquele momento as novas funcionalidades da aplicação estavam definidas, já se sabia quais campos eram necessários para formular o domínio principal do sistema: <strong>as notas</strong>. A tabela denomida para este fim, <code>notes_note</code>, se relaciona com a tabela de usuários, <code>auth_user</code>, em dois campos: <code>created_by_id</code> e <code>updated_by_id</code>. Uma das funcionalidades consistia em saber quais pessoas visualizaram uma nota, para isso foi preciso fazer uma relação <em>ManyToMany</em> através da tabela <code>notes-note-viewers</code>, como sugere a imagem a seguir.</p>
+<p><img alt="Daptnod modelagem" src="/assets/images/modelagem-daptnod.jpeg"><em>Relação entre os modelos de Notas e Usuários.</em></p>
+<p>Depois de criado o modelo, o resto do tempo foi investido para construir o <em>frontend</em> e otimizar consultas. Destaco aqui uma ferramenta que ajuda bastante nesse ultimo ponto que é o <a href="https://django-debug-toolbar.readthedocs.io/en/latest/">Django Debug Toolbar</a>. Essa dependência quando configurada e habilitada possibilita fazer um "raio X" do que acontece quando uma requisição chega até o servidor. Alguns exemplos de otimizações que foram feitas usando o ORM que o próprio Django fornece, foram:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Antes</span>
+<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c1"># Depois</span>
+<span class="n">Note</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">views_number</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Antes</span>
+<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="n">note</span><span class="o">.</span><span class="n">updated_at</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="n">note</span><span class="o">.</span><span class="n">updated_by</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">note</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">)</span>
+<span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> 
+
+<span class="c1"># Depois</span>
+<span class="n">Note</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+    <span class="n">updated_by</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>As telas foram feitas com o framework CSS <a href="https://bulma.io/">Bulma</a>. A intenção foi deixá-las o mais simples possível, sem truques nem efeitos. Mesmo focando no básico, sentia falta do "modo escuro" que não existia no Dontpad. Não é tão simples fazer isso com o Bulma, mas encontrei uma extensão que facilitou o desenvolvimento desse recurso: <a href="https://github.com/jloh/bulma-prefers-dark">bulma-prefers-dark</a>. Ao final da construção, a navegação ficou assim:</p>
+<p><img alt="Daptnod modelagem" src="/assets/images/tuor-daptnod.gif"><em>Tuor pelo Daptnod.</em></p>
+<p>Apesar de ser algo simples, esse foi um dos projetos que mais gostei de fazer por ser muito útil. O tempo de desenvolvimento da aplicação foi de aproximadamente 2 semanas. Oficializei uma primeira versão da ferramenta e a batizei como <strong>DAPTNOD</strong>. O projeto está no GitHub através desse <a href="https://github.com/diegofsousa/daptnod">link</a>. Também subi uma versão de produção que pode ser acessada em <a href="https://daptnod.herokuapp.com/">https://daptnod.herokuapp.com/</a>. </p>
+            </section>
+
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=[PT] Criando uma ferramenta para criação de notas rápidas&amp;url=https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <a class="googleplus" href="https://plus.google.com/share?url=https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <i class="ic ic-googleplus"></i><span class="hidden">Google+</span>
+                    </a>
+                    <div class="clear"></div>
+                </div>
+
+                <aside class="post-tags">
+<a href="https://diegofernando.dev/tag/ferramental">ferramental</a><a href="https://diegofernando.dev/tag/python">python</a><a href="https://diegofernando.dev/tag/recriacao">recriação</a><a href="https://diegofernando.dev/tag/dontpad">dontpad</a>                </aside>
+
+                <div class="clear"></div>
+
+                <aside class="post-author">
+
+
+                        <figure class="post-author-avatar">
+                            <img src="https://diegofernando.dev/assets/images/avatar.jpeg" alt="Diego Fernando" />
+                        </figure>
+                    <div class="post-author-bio">
+                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
+                            <p class="post-author-about">Now is better than never.</p>
+                            <span class="post-author-location"><i class="ic ic-location"></i> Fortaleza/CE/Brazil</span>
+                            <span class="post-author-website"><a href="http://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
+                        <!-- Social linkes in alphabet order. -->
+                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
+                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
+                    </div>
+                    <div class="clear"></div>
+                </aside>
+
+                </section>
+
+                <script type="text/javascript">
+                    var disqus = 'diegofsousa';
+                    var disqus_shortname = 'diegofsousa';
+                    var disqus_identifier = '/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html';
+                    var disqus_url = 'https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html';
+                </script>
+                <noscript>Please enable JavaScript to view the comments.</noscript>
+                <section class="post-comments">
+                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html" >Show Comments</a>
+                    <div id="disqus_thread"></div>
+                </section>
+
+                <aside class="post-nav">
+                    <a class="post-nav-prev" href="https://diegofernando.dev/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html">
+                        <section class="post-nav-teaser">
+                            <i class="ic ic-arrow-right"></i>
+                                <h2 class="post-nav-title">[PT] Padrão Abstract Factory aplicado à diferentes implementações de redimensionamento de imagens</h2>
+                            <p class="post-nav-excerpt">O Abstract Factory é um importante padrão de projeto do tipo criacional que permite...</p>
+                        </section>
+                    </a>
+                    <div class="clear"></div>
+                </aside>
+
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
+
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
+        </section>
+      </div>
+    </footer>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178470984-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-178470984-1', { 'anonymize_ip': true });
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'diegofsousa';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
