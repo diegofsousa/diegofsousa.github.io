@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/</loc>
-<lastmod>2021-01-16T18:41:44-00:00</lastmod>
+<lastmod>2021-01-19T21:11:59-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tags.html</loc>
-<lastmod>2021-01-16T18:41:44-00:00</lastmod>
+<lastmod>2021-01-19T21:11:59-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/categories.html</loc>
-<lastmod>2021-01-16T18:41:44-00:00</lastmod>
+<lastmod>2021-01-19T21:11:59-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/authors.html</loc>
-<lastmod>2021-01-16T18:41:44-00:00</lastmod>
+<lastmod>2021-01-19T21:11:59-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/archives.html</loc>
-<lastmod>2021-01-16T18:41:44-00:00</lastmod>
+<lastmod>2021-01-19T21:11:59-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -47,7 +47,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/criando-uma-ferramenta-para-criacao-de-notas-rapidas.html</loc>
-<lastmod>2021-01-16T18:33:13-03:00</lastmod>
+<lastmod>2021-01-19T20:32:22-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -89,35 +89,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/category/misc</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/ferramental</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/python</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/recriacao</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/dontpad</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -264,7 +264,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/author/diego</loc>
-<lastmod>2021-01-16T18:33:13-02:34</lastmod>
+<lastmod>2021-01-19T20:32:22-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
