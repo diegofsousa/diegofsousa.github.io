@@ -57,8 +57,8 @@
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html"/>
 <meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2021-01-16 18:28:00-03:00"/>
-<meta property="article:modified_time" content="2021-01-19 22:05:51.205918-03:00"/>
+<meta property="article:published_time" content="2021-01-20 01:05:00-03:00"/>
+<meta property="article:modified_time" content="2021-08-02 03:46:05.415428-03:00"/>
 <meta property="article:author" content="https://diegofernando.dev/author/diego">
   <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
 <meta property="article:section" content="misc"/>
@@ -84,8 +84,8 @@
   "@type": "Article",
   "name": "[PT] Construindo uma ferramenta para criação de notas rápidas",
   "headline": "[PT] Construindo uma ferramenta para criação de notas rápidas",
-  "datePublished": "2021-01-16 18:28:00-03:00",
-  "dateModified": "2021-01-19 22:05:51.205918-03:00",
+  "datePublished": "2021-01-20 01:05:00-03:00",
+  "dateModified": "2021-08-02 03:46:05.415428-03:00",
   "author": {
     "@type": "Person",
     "name": "diego",
@@ -132,10 +132,10 @@
         <!-- TODO : Proper class for headline -->
         <span class="post-meta">
                 <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
-            | <time datetime="16 jan 2021">16 jan 2021</time>
+            | <time datetime="20 jan 2021">20 jan 2021</time>
         </span>
         <!-- TODO : Modified check -->
-            <span class="post-meta"> | Updated on 19 jan 2021</span>
+            <span class="post-meta"> | Updated on 02 ago 2021</span>
             <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/code.jpg')">
       </div>
     </header>
@@ -159,7 +159,7 @@
 <p>Algo que está se tornando cada vez mais comum no aprendizado e exercício do desenvolvimento de software, nos dias atuais, é a criação de projetos que simulam alguma plataforma de sucesso. Recriar, mesmo que de maneira simplória, réplicas como do UX do Instagram, backend do Uber, arquitetura da Netflix, nos induzem a refletir sobre técnicas que podem usadas nesses cases.</p>
 <p>Dado isso, uni todas as características ruíns do Dontpad, joguei num balde, e me desafiei a refazê-lo com algumas melhorias. Apesar de ser um serviço bem respaldado e com muitos acessos, a ideia por trás do Dontpad não é complexa. O grau de dificuldade inclusive foi maior no conjunto de funcionalidades que adicionei como diferenciais:</p>
 <ul>
-<li>A URL de uma nota é <em>hash</em> (ex: https://<url_server>/EreQR5z).</li>
+<li>A URL de uma nota é <em>hash</em> (ex: https:///EreQR5z).</li>
 <li>Possibilidade de criar conta para guardar notas.</li>
 <li>Possibilidade de privar notas para o usuário.</li>
 <li>Capacidade de bloquear a alteração do conteúdo de uma nota.</li>
@@ -174,16 +174,16 @@
 <p>Como até aquele momento às novas funcionalidades da aplicação estavam definidas, já se sabia quais campos eram necessários para formular o domínio principal do sistema: <strong>as notas</strong>. A tabela denomida para este fim, <code>notes_note</code>, se relaciona com a tabela de usuários, <code>auth_user</code>, em dois campos: <code>created_by_id</code> e <code>updated_by_id</code>. Uma das funcionalidades consistia em saber quais pessoas visualizaram uma nota, para isso foi preciso fazer uma relação <em>ManyToMany</em> através da tabela <code>notes-note-viewers</code>, como sugere a imagem a seguir.</p>
 <p><img alt="Daptnod modelagem" src="/assets/images/modelagem-daptnod.jpeg"><em>Relação entre os modelos de Notas e Usuários.</em></p>
 <p>Depois de criado o modelo, o resto do tempo foi investido para construir o <em>frontend</em> e otimizar consultas. Destaco aqui uma ferramenta que ajuda bastante nesse último ponto, que é o <a href="https://django-debug-toolbar.readthedocs.io/en/latest/">Django Debug Toolbar</a>. Essa dependência, quando configurada e habilitada, possibilita fazer um "raio X" do que acontece quando uma requisição chega até o servidor. Alguns exemplos de otimizações que foram feitas usando o ORM que o próprio Django fornece, foram:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Antes</span>
-<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Antes </span>
+<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span> 
 <span class="o">...</span>
 <span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">note</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> 
 
-<span class="c1"># Depois</span>
+<span class="c1"># Depois </span>
 <span class="n">Note</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
     <span class="n">views_number</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">views_number</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="p">)</span>
+<span class="p">)</span> 
 </code></pre></div>
 
 <div class="highlight"><pre><span></span><code><span class="c1"># Antes</span>
@@ -204,7 +204,7 @@
 
 <p>As telas foram feitas com o framework CSS <a href="https://bulma.io/">Bulma</a>. A intenção foi deixá-las o mais simples possível, sem truques nem efeitos. Mesmo focando no básico, sentia falta do "modo escuro" que não existia no Dontpad. Não é tão simples fazer isso com o Bulma, mas encontrei uma extensão que facilitou o desenvolvimento desse recurso: <a href="https://github.com/jloh/bulma-prefers-dark">bulma-prefers-dark</a>. Ao final da construção, a navegação ficou assim:</p>
 <p><img alt="Daptnod modelagem" src="/assets/images/tuor-daptnod.gif"><em>Tuor pelo Daptnod.</em></p>
-<p>Apesar de ser algo simples, este foi um dos projetos que mais gostei de fazer por ser muito útil. O tempo de desenvolvimento da aplicação foi de aproximadamente duas semanas. Oficializei uma primeira versão da ferramenta e a batizei como <strong>DAPTNOD</strong>. O projeto está no GitHub através deste <a href="https://github.com/diegofsousa/daptnod">link</a>. Também subi uma versão de produção que pode ser acessada em <a href="https://daptnod.herokuapp.com/">https://daptnod.herokuapp.com/</a>. </p>
+<p>Apesar de ser algo simples, este foi um dos projetos que mais gostei de fazer por ser muito útil. O tempo de desenvolvimento da aplicação foi de aproximadamente duas semanas. Oficializei uma primeira versão da ferramenta e a batizei como <strong>DAPTNOD</strong>. O projeto está no GitHub através deste <a href="https://github.com/diegofsousa/daptnod">link</a>. Também subi uma versão de produção que pode ser acessada em <a href="https://daptnod.herokuapp.com/">https://daptnod.herokuapp.com/</a>.</p>
             </section>
 
             <section class="post-info">
