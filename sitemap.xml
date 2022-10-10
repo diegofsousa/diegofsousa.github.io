@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/</loc>
-<lastmod>2022-10-09T21:21:42-00:00</lastmod>
+<lastmod>2022-10-09T22:26:32-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tags.html</loc>
-<lastmod>2022-10-09T21:21:42-00:00</lastmod>
+<lastmod>2022-10-09T22:26:32-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/categories.html</loc>
-<lastmod>2022-10-09T21:21:42-00:00</lastmod>
+<lastmod>2022-10-09T22:26:32-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/authors.html</loc>
-<lastmod>2022-10-09T21:21:42-00:00</lastmod>
+<lastmod>2022-10-09T22:26:32-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/archives.html</loc>
-<lastmod>2022-10-09T21:21:42-00:00</lastmod>
+<lastmod>2022-10-09T22:26:32-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -47,7 +47,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/entendendo-o-package-context-em-go.html</loc>
-<lastmod>2022-10-09T21:20:35-03:00</lastmod>
+<lastmod>2022-10-09T21:41:31-03:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -96,28 +96,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/category/misc</loc>
-<lastmod>2022-10-09T21:20:35-02:34</lastmod>
+<lastmod>2022-10-09T21:41:31-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/golang</loc>
-<lastmod>2022-10-09T21:20:35-02:34</lastmod>
+<lastmod>2022-10-09T21:41:31-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/context</loc>
-<lastmod>2022-10-09T21:20:35-02:34</lastmod>
+<lastmod>2022-10-09T21:41:31-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://diegofernando.dev/tag/programacao</loc>
-<lastmod>2022-10-09T21:20:35-02:34</lastmod>
+<lastmod>2022-10-09T21:41:31-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -285,7 +285,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://diegofernando.dev/author/diego</loc>
-<lastmod>2022-10-09T21:20:35-02:34</lastmod>
+<lastmod>2022-10-09T21:41:31-02:34</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
