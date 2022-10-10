@@ -1,5 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Diego Fernando - misc</title><link href="https://diegofernando.dev/" rel="alternate"></link><link href="https://diegofernando.dev/feeds/misc.atom.xml" rel="self"></link><id>https://diegofernando.dev/</id><updated>2021-08-02T03:46:05-03:00</updated><subtitle>I'm a technology enthusiast and programmer</subtitle><entry><title>[PT] Construindo uma ferramenta para criação de notas rápidas</title><link href="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html" rel="alternate"></link><published>2021-01-20T01:05:00-03:00</published><updated>2021-08-02T03:46:05-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2021-01-20:/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html</id><summary type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de colar essa informação em uma ferramenta externa.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Diego Fernando - misc</title><link href="https://diegofernando.dev/" rel="alternate"></link><link href="https://diegofernando.dev/feeds/misc.atom.xml" rel="self"></link><id>https://diegofernando.dev/</id><updated>2022-10-09T21:20:35-03:00</updated><subtitle>I'm a technology enthusiast and programmer</subtitle><entry><title>[PT] Entendendo o package Context em Go</title><link href="https://diegofernando.dev/entendendo-o-package-context-em-go.html" rel="alternate"></link><published>2022-10-09T10:05:00-03:00</published><updated>2022-10-09T21:20:35-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2022-10-09:/entendendo-o-package-context-em-go.html</id><summary type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote &lt;strong&gt;context.Context&lt;/strong&gt; é um deles. Então, let's go!&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Dwight Schrute mandando um &amp;quot;let's go!&amp;quot;" src="/assets/images/lets-go-dwight-schrute.gif"&gt;&lt;/p&gt;
+&lt;p&gt;Olhando para a &lt;a href="https://pkg.go.dev/context"&gt;documentação oficial&lt;/a&gt;, temos o seguinte trecho:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“&lt;strong&gt;&lt;em&gt;Package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes&lt;/em&gt;&lt;/strong&gt;”. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Ou seja, o Context permite a criação de prazos e valores de escopo de execução aos processos em que ele é compartilhado. Essa mágica acontece pelo fato que o Context usa &lt;em&gt;channels&lt;/em&gt; para enviar sinais aos processos, e esses processos por sua vez, escutam essas instruções controlando ações de parada.&lt;/p&gt;
+&lt;p&gt;Um exemplo clássico de seu uso é em situações de requisições para API’s externas onde queremos delimitar um tempo de espera pela resposta. Também existem outras situações que podemos nos beneficiar do seu uso, tais como controlar o tempo limite de processamento de instruções e determinar prazo de execução de &lt;em&gt;query&lt;/em&gt; ao banco de dados, por exemplo. Enfim, são várias as possibilidades.&lt;/p&gt;
+&lt;h1&gt;Iniciando um Context&lt;/h1&gt;
+&lt;p&gt;Antes de começarmos a detalhar os tipos de Context, é importante entendermos como se dá a sua inicialização. &lt;strong&gt;Todo Context para ser usado, deve ser inicializado vazio em algum momento do ciclo de vida&lt;/strong&gt;. A própria documentação do Go desencoraja passar &lt;code&gt;nil&lt;/code&gt; como parâmetro em situações que o requerem. Existem duas formas de inicializá-lo - &lt;strong&gt;context.Background()&lt;/strong&gt; e  &lt;strong&gt;context.TODO()&lt;/strong&gt;:&lt;/p&gt;
+&lt;h3&gt;context.Background()&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;context&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Background&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;O &lt;code&gt;context.Backgroud()&lt;/code&gt; nos retorna um Context não nulo e vazio. &lt;strong&gt;Normalmente é usado pela função principal ou &lt;em&gt;entrypoint&lt;/em&gt; do projeto&lt;/strong&gt;.&lt;/p&gt;
+&lt;h3&gt;context.TODO()&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;context&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;TODO&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Assim como seu antecessor, o &lt;code&gt;context.TODO()&lt;/code&gt; também nos retorna um Context não nulo e vazio. A principal diferença é que o &lt;strong&gt;seu uso se dá quando não estiver claro o contexto que se deve usar ou ele ainda não estiver disponível&lt;/strong&gt;.&lt;/p&gt;
+&lt;h1&gt;Tipos de Context&lt;/h1&gt;
+&lt;p&gt;Existem basicamente &lt;strong&gt;três tipos&lt;/strong&gt; de Context:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cancellation Signals&lt;/li&gt;
+&lt;li&gt;Deadline&lt;/li&gt;
+&lt;li&gt;Request-scoped values&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cancellation Signals&lt;/h3&gt;
+&lt;p&gt;O tipo &lt;strong&gt;Cancellation Signals&lt;/strong&gt; define um Context que pode ter sua execução interrompida através de um comando. Neste caso, a instrução segue o fluxo normal  até que em certo ponto do código seja dada a sua parada. A seguir, um exemplo de implementação:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;context&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;time&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Background&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cancel&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WithCancel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;go&lt;/span&gt; &lt;span class="n"&gt;executeFunction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;cancel&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;executeFunction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;select&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Done&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+            &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Stopping code execution...&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Running at&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Now&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Antes de explicar a função &lt;code&gt;main()&lt;/code&gt;, vamos entender primeiro a função &lt;code&gt;executeFunction()&lt;/code&gt;, pois ela irá receber instruções do Context. Ao receber um parâmetro do tipo &lt;code&gt;context.Context&lt;/code&gt; fazemos um &lt;em&gt;loop&lt;/em&gt; infinito, onde, assim que receber o sinal de parada vindo do contexto, ela irá apresentar o texto “&lt;strong&gt;Stopping code execution...&lt;/strong&gt;” e terminará sua execução através de um &lt;code&gt;return&lt;/code&gt; explícito. Caso contrário, seguirá sua execução apresentando “&lt;strong&gt;Running at [horário]&lt;/strong&gt;”. O comando &lt;code&gt;select&lt;/code&gt; funciona como uma espécie de &lt;em&gt;switch-case&lt;/em&gt;, porém aplicado ao sinais provenientes de &lt;strong&gt;&lt;em&gt;channels&lt;/em&gt;&lt;/strong&gt;, como é o caso de Contexts. Como percebemos, o sinal de parada no código é dado pela instrução &lt;code&gt;ctx.Done()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Retornando para a função &lt;code&gt;main()&lt;/code&gt;, a primeira coisa que fazemos é definir um Context através do &lt;code&gt;context.Backgroud()&lt;/code&gt;. Após isso, usamos a função &lt;code&gt;context.WithCancel()&lt;/code&gt; passando o nosso contexto base. Ele nos devolve um novo contexto e uma segunda instrução que chamamos de &lt;code&gt;cancel&lt;/code&gt;. Ela é essencial para definir a parada das instruções que estão ligadas a este contexto. Enquanto executamos a função &lt;code&gt;executeFunction()&lt;/code&gt; de forma assíncrona, esperamos três segundos para forçar seu cancelamento com a instrução &lt;code&gt;cancel()&lt;/code&gt; - aquela mesmo que recebemos do contexto :) . &lt;/p&gt;
+&lt;p&gt;O resultado da execução será semelhante ao &lt;em&gt;log&lt;/em&gt; abaixo:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;Running at 2022-10-09 16:15:46.80042576 -0300 -03 m=+1.000598497
+Running at 2022-10-09 16:15:47.801454038 -0300 -03 m=+2.001626779
+Running at 2022-10-09 16:15:48.801876258 -0300 -03 m=+3.002048999
+Stopping code execution...
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3&gt;Deadline&lt;/h3&gt;
+&lt;p&gt;Como o próprio termo sugere, um Context do tipo &lt;strong&gt;Deadline&lt;/strong&gt; delimita o tempo de execução de uma instrução ou processo. Podemos então informar para a aplicação até quando determinado código pode demorar. Temos duas funções diferentes para trabalhar com &lt;strong&gt;Deadline&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;context.WithDeadline()&lt;/code&gt;&lt;/strong&gt; - É definido um &lt;strong&gt;valor de tempo fixo&lt;/strong&gt;.&lt;ul&gt;
+&lt;li&gt;Exemplo: o contexto tem até as 22h do dia 09 de outubro de 2022 para ser executado.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;context.WithTimeout()&lt;/code&gt;&lt;/strong&gt; - É definido um &lt;strong&gt;valor de tempo a partir do instante que foi instanciado&lt;/strong&gt;.&lt;ul&gt;
+&lt;li&gt;Exemplo: o contexto tem 4 minutos a partir de agora para ser executado.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;context.WithDeadline()&lt;/h4&gt;
+&lt;p&gt;Vamos então pegar o mesmo código anterior e alterar alguns trechos:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;context&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;time&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Background&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;deadline&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Now&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cancel&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WithDeadline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;deadline&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;defer&lt;/span&gt; &lt;span class="n"&gt;cancel&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="n"&gt;executeFunction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;executeFunction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;select&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Done&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+            &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Stopping code execution...&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Running at&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Now&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Instanciamos uma nova variável &lt;code&gt;deadline&lt;/code&gt; somando três segundos ao tempo de agora e passamos ela para a função &lt;code&gt;context.WithDeadLine()&lt;/code&gt;. Dessa forma a instrução da função &lt;code&gt;executeFunction()&lt;/code&gt; será interrompida após o intervalo de três segundos.&lt;/p&gt;
+&lt;p&gt;O resultado da execução do código acima será semelhante a seguinte saída:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;Running at 2022-10-09 17:30:50.492897161 -0300 -03 m=+1.000190057
+Running at 2022-10-09 17:30:51.493583512 -0300 -03 m=+2.000876359
+Running at 2022-10-09 17:30:52.493694606 -0300 -03 m=+3.000987449
+Running at 2022-10-09 17:30:53.493795753 -0300 -03 m=+4.001088530
+Stopping code execution…
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;context.WithTimeout()&lt;/h4&gt;
+&lt;p&gt;Podemos usar a função &lt;code&gt;context.WithTimeout()&lt;/code&gt; para produzir o mesmo comportamento. Basta alterarmos as linhas &lt;strong&gt;11&lt;/strong&gt; e &lt;strong&gt;12&lt;/strong&gt; por:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nv"&gt;deadline&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;Second&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="nv"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;cancel&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;WithTimeout&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;deadline&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;A diferença, para o código anterior é que, agora, não precisamos mais fazer o cálculo do instante atual somado com os três segundos. A saída será a mesma.&lt;/p&gt;
+&lt;p&gt;Um ponto curioso nessa estrutura é que executamos também o &lt;code&gt;cancel()&lt;/code&gt;, porém com a palavra-chave &lt;code&gt;defer&lt;/code&gt; para assegurar que ele será a última coisa a ser executada. Apesar de estarmos delimitando o tempo de execução, &lt;strong&gt;podemos também antecipar o cancelamento da instrução a qualquer momento se sobrepondo a regra do limite de tempo&lt;/strong&gt;, assim como explicado na seção &lt;strong&gt;Cancellation Signals&lt;/strong&gt;.&lt;/p&gt;
+&lt;h4&gt;Request-scoped value&lt;/h4&gt;
+&lt;p&gt;Além de controlar tempo de execução e parada, com Context também é possível passar valores no estilo &lt;strong&gt;chave-valor&lt;/strong&gt; para instruções filhas. Esse conceito é importante pois ele &lt;strong&gt;funciona independente se a chamada para as instruções é síncrona ou assíncrona&lt;/strong&gt;. Esses valores ficam salvos dentro do contexto e são imutáveis. Vamos detalhar o código abaixo um modelo síncrono:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;context&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Background&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WithValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;sessionId&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Session123&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;showValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;showValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Value&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;sessionId&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="n"&gt;addKeyValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;typeError&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;ErrorType123&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Value&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;typeError&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;addKeyValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="n"&gt;interface&lt;/span&gt;&lt;span class="p"&gt;{},&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="n"&gt;interface&lt;/span&gt;&lt;span class="p"&gt;{})&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WithValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Definimos o contexto inicial vazio com &lt;code&gt;context.Background()&lt;/code&gt;. Após isso, criamos um novo contexto a partir do inicial com &lt;code&gt;context.WithValue()&lt;/code&gt; e já também adicionamos valores fictícios ao contexto. Como esses valores ficam guardados no Context, podemos acessá-los em outra parte no programa com a função &lt;code&gt;ctx.Value()&lt;/code&gt; passando a chave correspondente. Caso essa chave não exista o retorno é &lt;code&gt;nil&lt;/code&gt;. Também é possível adicionar novos valores a um contexto criando um &lt;code&gt;context.WithValues()&lt;/code&gt; passando o contexto anterior e atualizando ele próprio.&lt;/p&gt;
+&lt;h1&gt;Demais cenários&lt;/h1&gt;
+&lt;p&gt;Os casos de uso do Context não se limitam aos aqui apresentados. Atualmente, as bibliotecas em Go, sejam nativas ou não requerem passar Context em suas instruções. O objetivo desse post foi entender a sua base e seus usos comuns.&lt;/p&gt;
+&lt;p&gt;Até a próxima :)&lt;/p&gt;</content><category term="misc"></category><category term="golang"></category><category term="context"></category><category term="programação"></category></entry><entry><title>[PT] Construindo uma ferramenta para criação de notas rápidas</title><link href="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html" rel="alternate"></link><published>2021-01-20T01:05:00-03:00</published><updated>2021-08-02T03:46:05-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2021-01-20:/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html</id><summary type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de colar essa informação em uma ferramenta externa.&lt;/p&gt;
 &lt;p&gt;Na empresa onde trabalho, por exemplo, usamos com frequência o site &lt;strong&gt;&lt;a href="http://dontpad.com/"&gt;dontpad.com&lt;/a&gt;&lt;/strong&gt;. &lt;strong&gt;Dontpad&lt;/strong&gt; é uma aplicação que possibilita a criação rápida de notas a partir de um recurso definido pelo usuário. Uma sequência de caracteres qualquer após a URL &lt;code&gt;http://dontpad.com&lt;/code&gt;, já torna um identificador para o conteúdo do seu texto. O Dontpad é extramente rápido e eficiente, porém observei alguns contras:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Nenhuma privacidade e segurança. Qualquer pessoa que tiver a URL, da sua nota, pode visualizar o conteúdo.&lt;/li&gt;
@@ -65,35 +247,35 @@
 &lt;p&gt;Dessa forma, temos como atributos variáveis entre a família de objetos: a imagem, a largura alvo e a altura alvo. Esses valores podem ser passados onde toda estrutura é chamada. Nesse caso, como é um exemplo, podemos interagir com a fábrica pelo método main. Não especificarei os detalhes de construção de todas as classes, mas deixarei o link da implementação no GitHub. O diagrama de classes aplicado à temática proposta fica assim:&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Banner de divulgação" src="/assets/images/abstract-factory-diagram.jpeg"&gt;&lt;em&gt;Diagrama de Classe do padrão Abstract Factory aplicado.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;As chamadas do método main para a implementação podem ser desenvolvidas da seguinte maneira:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;package&lt;/span&gt; &lt;span class="nn"&gt;dev.diegofernando.imagetest&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;package&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;dev.diegofernando.imagetest&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.ConcreteImageFactory&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.Image&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.ImageFactory&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;dev.diegofernando.imagetest.util.ImageResourceUtil&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.ConcreteImageFactory&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.Image&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;dev.diegofernando.imagetest.factory.ImageFactory&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;dev.diegofernando.imagetest.util.ImageResourceUtil&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.awt.image.BufferedImage&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nn"&gt;java.awt.image.BufferedImage&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
 &lt;span class="cm"&gt;/**&lt;/span&gt;
 &lt;span class="cm"&gt; * @author Diego Fernando&lt;/span&gt;
 &lt;span class="cm"&gt; * @since 07/09/2020&lt;/span&gt;
-&lt;span class="cm"&gt; */&lt;/span&gt;
+&lt;span class="cm"&gt; */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Main&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
-        &lt;span class="n"&gt;BufferedImage&lt;/span&gt; &lt;span class="n"&gt;image&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ImageResourceUtil&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getImageFromPath&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;image.jpg&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;public&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Main&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;static&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;BufferedImage&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;ImageResourceUtil&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getImageFromPath&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;image.jpg&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-        &lt;span class="n"&gt;ImageFactory&lt;/span&gt; &lt;span class="n"&gt;imageFactory&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ConcreteImageFactory&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;ImageFactory&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;ConcreteImageFactory&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-        &lt;span class="n"&gt;Image&lt;/span&gt; &lt;span class="n"&gt;graphics2dImage&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithGraphics2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-        &lt;span class="n"&gt;Image&lt;/span&gt; &lt;span class="n"&gt;scaledInstanceImage&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithScaledInstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-        &lt;span class="n"&gt;Image&lt;/span&gt; &lt;span class="n"&gt;graphics2dRenderedImage&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithGraphics2DRendered&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;graphics2dImage&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithGraphics2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;scaledInstanceImage&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithScaledInstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;graphics2dRenderedImage&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;imageFactory&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resizeWithGraphics2DRendered&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
-        &lt;span class="n"&gt;graphics2dImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
-        &lt;span class="n"&gt;scaledInstanceImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
-        &lt;span class="n"&gt;graphics2dRenderedImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
-    &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;graphics2dImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;scaledInstanceImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;graphics2dRenderedImage&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;resize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Essa abordagem tem alguns prós e contras. O benefício de implementar essa estrutura é a certeza que todos os produtos que vêm da fábrica estão relacionados e são compatíveis entre si. Com o baixo acoplamento, fica fácil introduzir novas variações no produto sem interferir no código do cliente tornando a manutenção facilitada. O ponto ruim da abordagem é a quantidade de código incluindo novas classes e interfaces, o que pode confundir o desenvolvedor no início.&lt;/p&gt;</content><category term="misc"></category><category term="design pattern"></category><category term="java"></category><category term="gof"></category><category term="padrão"></category><category term="abstract fatory"></category></entry><entry><title>[PT] Podcast - Trabalho colaborativo e Git</title><link href="https://diegofernando.dev/podcast-trabalho-colaborativo-e-git.html" rel="alternate"></link><published>2020-09-20T18:42:00-03:00</published><updated>2021-08-02T00:41:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-09-20:/podcast-trabalho-colaborativo-e-git.html</id><summary type="html">&lt;p&gt;Nos últimos dias fui convidado para uma conversa sobre ferramentas de &lt;strong&gt;trabalho colaborativo&lt;/strong&gt;, em 

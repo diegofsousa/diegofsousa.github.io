@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+
+  <title>[PT] Entendendo o package Context em Go</title>
+
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/entendendo-o-package-context-em-go.html" rel="canonical" />
+  <!-- Feed -->
+        <link href="https://diegofernando.dev/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Full Atom Feed" />
+          <link href="https://diegofernando.dev/feeds/{slug}.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Categories Atom Feed" />
+
+  <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem –...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="golang">
+    <meta name="tags" content="context">
+    <meta name="tags" content="programação">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="[PT] Entendendo o package Context em Go"/>
+<meta property="og:description" content="Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem –..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/entendendo-o-package-context-em-go.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2022-10-09 10:05:00-03:00"/>
+<meta property="article:modified_time" content="2022-10-09 21:20:35.587367-03:00"/>
+<meta property="article:author" content="https://diegofernando.dev/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="golang"/>
+<meta property="article:tag" content="context"/>
+<meta property="article:tag" content="programação"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/gophers_working.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="[PT] Entendendo o package Context em Go">
+    <meta name="twitter:url" content="https://diegofernando.dev/entendendo-o-package-context-em-go.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/gophers_working.jpg">
+
+      <meta name="twitter:description" content="Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem –...">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "[PT] Entendendo o package Context em Go",
+  "headline": "[PT] Entendendo o package Context em Go",
+  "datePublished": "2022-10-09 10:05:00-03:00",
+  "dateModified": "2022-10-09 21:20:35.587367-03:00",
+  "author": {
+    "@type": "Person",
+    "name": "diego",
+    "url": "https://diegofernando.dev/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/gophers_working.jpg",
+  "url": "https://diegofernando.dev/entendendo-o-package-context-em-go.html",
+  "description": "Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem –..."
+}
+</script>
+</head>
+<!-- TODO : Body class -->
+<body class="home-template">
+
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
+    <ul>
+
+              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
+
+    </ul>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" class="has-cover">
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">[PT] Entendendo o package Context em Go</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
+            | <time datetime="09 out 2022">09 out 2022</time>
+        </span>
+        <!-- TODO : Modified check -->
+            <span class="post-meta"> | Updated on 09 out 2022</span>
+            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/gophers_working.jpg')">
+      </div>
+    </header>
+
+  <section id="wrapper">
+    <a class="hidden-close"></a>
+
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote <strong>context.Context</strong> é um deles. Então, let's go!</p>
+<p><img alt="Dwight Schrute mandando um &quot;let's go!&quot;" src="/assets/images/lets-go-dwight-schrute.gif"></p>
+<p>Olhando para a <a href="https://pkg.go.dev/context">documentação oficial</a>, temos o seguinte trecho:</p>
+<blockquote>
+<p>“<strong><em>Package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes</em></strong>”. </p>
+</blockquote>
+<p>Ou seja, o Context permite a criação de prazos e valores de escopo de execução aos processos em que ele é compartilhado. Essa mágica acontece pelo fato que o Context usa <em>channels</em> para enviar sinais aos processos, e esses processos por sua vez, escutam essas instruções controlando ações de parada.</p>
+<p>Um exemplo clássico de seu uso é em situações de requisições para API’s externas onde queremos delimitar um tempo de espera pela resposta. Também existem outras situações que podemos nos beneficiar do seu uso, tais como controlar o tempo limite de processamento de instruções e determinar prazo de execução de <em>query</em> ao banco de dados, por exemplo. Enfim, são várias as possibilidades.</p>
+<h1>Iniciando um Context</h1>
+<p>Antes de começarmos a detalhar os tipos de Context, é importante entendermos como se dá a sua inicialização. <strong>Todo Context para ser usado, deve ser inicializado vazio em algum momento do ciclo de vida</strong>. A própria documentação do Go desencoraja passar <code>nil</code> como parâmetro em situações que o requerem. Existem duas formas de inicializá-lo - <strong>context.Background()</strong> e  <strong>context.TODO()</strong>:</p>
+<h3>context.Background()</h3>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;context&quot;</span>
+    <span class="s2">&quot;fmt&quot;</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>O <code>context.Backgroud()</code> nos retorna um Context não nulo e vazio. <strong>Normalmente é usado pela função principal ou <em>entrypoint</em> do projeto</strong>.</p>
+<h3>context.TODO()</h3>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;context&quot;</span>
+    <span class="s2">&quot;fmt&quot;</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">TODO</span><span class="p">()</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Assim como seu antecessor, o <code>context.TODO()</code> também nos retorna um Context não nulo e vazio. A principal diferença é que o <strong>seu uso se dá quando não estiver claro o contexto que se deve usar ou ele ainda não estiver disponível</strong>.</p>
+<h1>Tipos de Context</h1>
+<p>Existem basicamente <strong>três tipos</strong> de Context:</p>
+<ul>
+<li>Cancellation Signals</li>
+<li>Deadline</li>
+<li>Request-scoped values</li>
+</ul>
+<h3>Cancellation Signals</h3>
+<p>O tipo <strong>Cancellation Signals</strong> define um Context que pode ter sua execução interrompida através de um comando. Neste caso, a instrução segue o fluxo normal  até que em certo ponto do código seja dada a sua parada. A seguir, um exemplo de implementação:</p>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;context&quot;</span>
+    <span class="s2">&quot;fmt&quot;</span>
+    <span class="s2">&quot;time&quot;</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span>
+    <span class="n">ctx</span><span class="p">,</span> <span class="n">cancel</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">WithCancel</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+
+    <span class="n">go</span> <span class="n">executeFunction</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Second</span><span class="p">)</span>
+    <span class="n">cancel</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Second</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">executeFunction</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">{</span>
+        <span class="n">select</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">&lt;-</span><span class="n">ctx</span><span class="o">.</span><span class="n">Done</span><span class="p">():</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s2">&quot;Stopping code execution...&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">default</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Second</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s2">&quot;Running at&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">Now</span><span class="p">())</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Antes de explicar a função <code>main()</code>, vamos entender primeiro a função <code>executeFunction()</code>, pois ela irá receber instruções do Context. Ao receber um parâmetro do tipo <code>context.Context</code> fazemos um <em>loop</em> infinito, onde, assim que receber o sinal de parada vindo do contexto, ela irá apresentar o texto “<strong>Stopping code execution...</strong>” e terminará sua execução através de um <code>return</code> explícito. Caso contrário, seguirá sua execução apresentando “<strong>Running at [horário]</strong>”. O comando <code>select</code> funciona como uma espécie de <em>switch-case</em>, porém aplicado ao sinais provenientes de <strong><em>channels</em></strong>, como é o caso de Contexts. Como percebemos, o sinal de parada no código é dado pela instrução <code>ctx.Done()</code>.</p>
+<p>Retornando para a função <code>main()</code>, a primeira coisa que fazemos é definir um Context através do <code>context.Backgroud()</code>. Após isso, usamos a função <code>context.WithCancel()</code> passando o nosso contexto base. Ele nos devolve um novo contexto e uma segunda instrução que chamamos de <code>cancel</code>. Ela é essencial para definir a parada das instruções que estão ligadas a este contexto. Enquanto executamos a função <code>executeFunction()</code> de forma assíncrona, esperamos três segundos para forçar seu cancelamento com a instrução <code>cancel()</code> - aquela mesmo que recebemos do contexto :) . </p>
+<p>O resultado da execução será semelhante ao <em>log</em> abaixo:</p>
+<div class="highlight"><pre><span></span><code>Running at 2022-10-09 16:15:46.80042576 -0300 -03 m=+1.000598497
+Running at 2022-10-09 16:15:47.801454038 -0300 -03 m=+2.001626779
+Running at 2022-10-09 16:15:48.801876258 -0300 -03 m=+3.002048999
+Stopping code execution...
+</code></pre></div>
+
+<h3>Deadline</h3>
+<p>Como o próprio termo sugere, um Context do tipo <strong>Deadline</strong> delimita o tempo de execução de uma instrução ou processo. Podemos então informar para a aplicação até quando determinado código pode demorar. Temos duas funções diferentes para trabalhar com <strong>Deadline</strong>:</p>
+<ul>
+<li><strong><code>context.WithDeadline()</code></strong> - É definido um <strong>valor de tempo fixo</strong>.<ul>
+<li>Exemplo: o contexto tem até as 22h do dia 09 de outubro de 2022 para ser executado.</li>
+</ul>
+</li>
+<li><strong><code>context.WithTimeout()</code></strong> - É definido um <strong>valor de tempo a partir do instante que foi instanciado</strong>.<ul>
+<li>Exemplo: o contexto tem 4 minutos a partir de agora para ser executado.</li>
+</ul>
+</li>
+</ul>
+<h4>context.WithDeadline()</h4>
+<p>Vamos então pegar o mesmo código anterior e alterar alguns trechos:</p>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;context&quot;</span>
+    <span class="s2">&quot;fmt&quot;</span>
+    <span class="s2">&quot;time&quot;</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span>
+    <span class="n">deadline</span> <span class="o">:=</span> <span class="n">time</span><span class="o">.</span><span class="n">Now</span><span class="p">()</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Second</span><span class="p">)</span>
+    <span class="n">ctx</span><span class="p">,</span> <span class="n">cancel</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">WithDeadline</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">deadline</span><span class="p">)</span>
+
+    <span class="n">defer</span> <span class="n">cancel</span><span class="p">()</span>
+
+    <span class="n">executeFunction</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">executeFunction</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">{</span>
+        <span class="n">select</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">&lt;-</span><span class="n">ctx</span><span class="o">.</span><span class="n">Done</span><span class="p">():</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s2">&quot;Stopping code execution...&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">default</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">time</span><span class="o">.</span><span class="n">Second</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s2">&quot;Running at&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">Now</span><span class="p">())</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Instanciamos uma nova variável <code>deadline</code> somando três segundos ao tempo de agora e passamos ela para a função <code>context.WithDeadLine()</code>. Dessa forma a instrução da função <code>executeFunction()</code> será interrompida após o intervalo de três segundos.</p>
+<p>O resultado da execução do código acima será semelhante a seguinte saída:</p>
+<div class="highlight"><pre><span></span><code>Running at 2022-10-09 17:30:50.492897161 -0300 -03 m=+1.000190057
+Running at 2022-10-09 17:30:51.493583512 -0300 -03 m=+2.000876359
+Running at 2022-10-09 17:30:52.493694606 -0300 -03 m=+3.000987449
+Running at 2022-10-09 17:30:53.493795753 -0300 -03 m=+4.001088530
+Stopping code execution…
+</code></pre></div>
+
+<h4>context.WithTimeout()</h4>
+<p>Podemos usar a função <code>context.WithTimeout()</code> para produzir o mesmo comportamento. Basta alterarmos as linhas <strong>11</strong> e <strong>12</strong> por:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">deadline</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nv">time</span><span class="o">.</span><span class="nv">Second</span><span class="w"></span>
+<span class="nv">ctx</span><span class="p">,</span><span class="w"> </span><span class="nv">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nv">context</span><span class="o">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nv">ctx</span><span class="p">,</span><span class="w"> </span><span class="nv">deadline</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+<p>A diferença, para o código anterior é que, agora, não precisamos mais fazer o cálculo do instante atual somado com os três segundos. A saída será a mesma.</p>
+<p>Um ponto curioso nessa estrutura é que executamos também o <code>cancel()</code>, porém com a palavra-chave <code>defer</code> para assegurar que ele será a última coisa a ser executada. Apesar de estarmos delimitando o tempo de execução, <strong>podemos também antecipar o cancelamento da instrução a qualquer momento se sobrepondo a regra do limite de tempo</strong>, assim como explicado na seção <strong>Cancellation Signals</strong>.</p>
+<h4>Request-scoped value</h4>
+<p>Além de controlar tempo de execução e parada, com Context também é possível passar valores no estilo <strong>chave-valor</strong> para instruções filhas. Esse conceito é importante pois ele <strong>funciona independente se a chamada para as instruções é síncrona ou assíncrona</strong>. Esses valores ficam salvos dentro do contexto e são imutáveis. Vamos detalhar o código abaixo um modelo síncrono:</p>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;context&quot;</span>
+    <span class="s2">&quot;fmt&quot;</span>
+<span class="p">)</span>
+
+<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">Background</span><span class="p">()</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">WithValue</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="s2">&quot;sessionId&quot;</span><span class="p">,</span> <span class="s2">&quot;Session123&quot;</span><span class="p">)</span>
+    <span class="n">showValue</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">showValue</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;sessionId&quot;</span><span class="p">))</span>
+    <span class="n">addKeyValue</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">,</span> <span class="s2">&quot;typeError&quot;</span><span class="p">,</span> <span class="s2">&quot;ErrorType123&quot;</span><span class="p">)</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;typeError&quot;</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="n">func</span> <span class="n">addKeyValue</span><span class="p">(</span><span class="n">ctx</span> <span class="o">*</span><span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="n">interface</span><span class="p">{},</span> <span class="n">value</span> <span class="n">interface</span><span class="p">{})</span> <span class="p">{</span>
+    <span class="o">*</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">WithValue</span><span class="p">(</span><span class="o">*</span><span class="n">ctx</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Definimos o contexto inicial vazio com <code>context.Background()</code>. Após isso, criamos um novo contexto a partir do inicial com <code>context.WithValue()</code> e já também adicionamos valores fictícios ao contexto. Como esses valores ficam guardados no Context, podemos acessá-los em outra parte no programa com a função <code>ctx.Value()</code> passando a chave correspondente. Caso essa chave não exista o retorno é <code>nil</code>. Também é possível adicionar novos valores a um contexto criando um <code>context.WithValues()</code> passando o contexto anterior e atualizando ele próprio.</p>
+<h1>Demais cenários</h1>
+<p>Os casos de uso do Context não se limitam aos aqui apresentados. Atualmente, as bibliotecas em Go, sejam nativas ou não requerem passar Context em suas instruções. O objetivo desse post foi entender a sua base e seus usos comuns.</p>
+<p>Até a próxima :)</p>
+            </section>
+
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=[PT] Entendendo o package Context em Go&amp;url=https://diegofernando.dev/entendendo-o-package-context-em-go.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/entendendo-o-package-context-em-go.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <div class="clear"></div>
+                </div>
+
+                <aside class="post-tags">
+<a href="https://diegofernando.dev/tag/golang">golang</a><a href="https://diegofernando.dev/tag/context">context</a><a href="https://diegofernando.dev/tag/programacao">programação</a>                </aside>
+
+                <div class="clear"></div>
+
+                <aside class="post-author">
+
+
+                        <figure class="post-author-avatar">
+                            <img src="https://diegofernando.dev/assets/images/avatar.jpeg" alt="Diego Fernando" />
+                        </figure>
+                    <div class="post-author-bio">
+                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
+                            <p class="post-author-about">Now is better than never.</p>
+                            <span class="post-author-location"><i class="ic ic-location"></i> Brazil</span>
+                            <span class="post-author-website"><a href="https://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
+                        <!-- Social linkes in alphabet order. -->
+                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
+                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
+                    </div>
+                    <div class="clear"></div>
+                </aside>
+
+                </section>
+
+                <script type="text/javascript">
+                    var disqus = 'diegofsousa';
+                    var disqus_shortname = 'diegofsousa';
+                    var disqus_identifier = '/entendendo-o-package-context-em-go.html';
+                    var disqus_url = 'https://diegofernando.dev/entendendo-o-package-context-em-go.html';
+                </script>
+                <noscript>Please enable JavaScript to view the comments.</noscript>
+                <section class="post-comments">
+                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/entendendo-o-package-context-em-go.html" >Show Comments</a>
+                    <div id="disqus_thread"></div>
+                </section>
+
+                <aside class="post-nav">
+                    <a class="post-nav-prev" href="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html">
+                        <section class="post-nav-teaser">
+                            <i class="ic ic-arrow-right"></i>
+                                <h2 class="post-nav-title">[PT] Construindo uma ferramenta para criação de notas rápidas</h2>
+                            <p class="post-nav-excerpt">Em um ambiente de desenvolvimento de software, as pessoas que compõem um...</p>
+                        </section>
+                    </a>
+                    <div class="clear"></div>
+                </aside>
+
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
+
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
+        </section>
+      </div>
+    </footer>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178470984-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-178470984-1', { 'anonymize_ip': true });
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'diegofsousa';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

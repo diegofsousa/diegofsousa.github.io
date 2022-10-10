@@ -160,35 +160,35 @@
 <p>Dessa forma, temos como atributos variáveis entre a família de objetos: a imagem, a largura alvo e a altura alvo. Esses valores podem ser passados onde toda estrutura é chamada. Nesse caso, como é um exemplo, podemos interagir com a fábrica pelo método main. Não especificarei os detalhes de construção de todas as classes, mas deixarei o link da implementação no GitHub. O diagrama de classes aplicado à temática proposta fica assim:</p>
 <p><img alt="Banner de divulgação" src="/assets/images/abstract-factory-diagram.jpeg"><em>Diagrama de Classe do padrão Abstract Factory aplicado.</em></p>
 <p>As chamadas do método main para a implementação podem ser desenvolvidas da seguinte maneira:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">package</span> <span class="nn">dev.diegofernando.imagetest</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">dev.diegofernando.imagetest</span><span class="p">;</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="nn">dev.diegofernando.imagetest.factory.ConcreteImageFactory</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">dev.diegofernando.imagetest.factory.Image</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">dev.diegofernando.imagetest.factory.ImageFactory</span><span class="p">;</span>
-<span class="kn">import</span> <span class="nn">dev.diegofernando.imagetest.util.ImageResourceUtil</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.diegofernando.imagetest.factory.ConcreteImageFactory</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.diegofernando.imagetest.factory.Image</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.diegofernando.imagetest.factory.ImageFactory</span><span class="p">;</span><span class="w"></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.diegofernando.imagetest.util.ImageResourceUtil</span><span class="p">;</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="nn">java.awt.image.BufferedImage</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.awt.image.BufferedImage</span><span class="p">;</span><span class="w"></span>
 
 <span class="cm">/**</span>
 <span class="cm"> * @author Diego Fernando</span>
 <span class="cm"> * @since 07/09/2020</span>
-<span class="cm"> */</span>
+<span class="cm"> */</span><span class="w"></span>
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="p">{</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="p">){</span>
-        <span class="n">BufferedImage</span> <span class="n">image</span> <span class="o">=</span> <span class="n">ImageResourceUtil</span><span class="p">.</span><span class="na">getImageFromPath</span><span class="p">(</span><span class="s">&quot;image.jpg&quot;</span><span class="p">);</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Main</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">){</span><span class="w"></span>
+<span class="w">        </span><span class="n">BufferedImage</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImageResourceUtil</span><span class="p">.</span><span class="na">getImageFromPath</span><span class="p">(</span><span class="s">&quot;image.jpg&quot;</span><span class="p">);</span><span class="w"></span>
 
-        <span class="n">ImageFactory</span> <span class="n">imageFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcreteImageFactory</span><span class="p">();</span>
+<span class="w">        </span><span class="n">ImageFactory</span><span class="w"> </span><span class="n">imageFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ConcreteImageFactory</span><span class="p">();</span><span class="w"></span>
 
-        <span class="n">Image</span> <span class="n">graphics2dImage</span> <span class="o">=</span> <span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithGraphics2D</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
-        <span class="n">Image</span> <span class="n">scaledInstanceImage</span> <span class="o">=</span> <span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithScaledInstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
-        <span class="n">Image</span> <span class="n">graphics2dRenderedImage</span> <span class="o">=</span> <span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithGraphics2DRendered</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Image</span><span class="w"> </span><span class="n">graphics2dImage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithGraphics2D</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">Image</span><span class="w"> </span><span class="n">scaledInstanceImage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithScaledInstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">Image</span><span class="w"> </span><span class="n">graphics2dRenderedImage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imageFactory</span><span class="p">.</span><span class="na">resizeWithGraphics2DRendered</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w"></span>
 
-        <span class="n">graphics2dImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span>
-        <span class="n">scaledInstanceImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span>
-        <span class="n">graphics2dRenderedImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">        </span><span class="n">graphics2dImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">scaledInstanceImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">graphics2dRenderedImage</span><span class="p">.</span><span class="na">resize</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Essa abordagem tem alguns prós e contras. O benefício de implementar essa estrutura é a certeza que todos os produtos que vêm da fábrica estão relacionados e são compatíveis entre si. Com o baixo acoplamento, fica fácil introduzir novas variações no produto sem interferir no código do cliente tornando a manutenção facilitada. O ponto ruim da abordagem é a quantidade de código incluindo novas classes e interfaces, o que pode confundir o desenvolvedor no início.</p>
