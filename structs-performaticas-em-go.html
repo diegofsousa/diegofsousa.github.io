@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+
+  <title>Structs performáticas em Go - padding, word size e clock</title>
+
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/structs-performaticas-em-go.html" rel="canonical" />
+  <!-- Feed -->
+
+  <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="golang">
+    <meta name="tags" content="backend">
+    <meta name="tags" content="programação">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="Structs performáticas em Go - padding, word size e clock"/>
+<meta property="og:description" content="Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/structs-performaticas-em-go.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2025-05-11 17:44:00-03:00"/>
+<meta property="article:modified_time" content="2025-05-12 12:05:51.960173-03:00"/>
+<meta property="article:author" content="https://diegofernando.dev/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="golang"/>
+<meta property="article:tag" content="backend"/>
+<meta property="article:tag" content="programação"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/order-unsplash.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="Structs performáticas em Go - padding, word size e clock">
+    <meta name="twitter:url" content="https://diegofernando.dev/structs-performaticas-em-go.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/order-unsplash.jpg">
+
+      <meta name="twitter:description" content="Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em...">
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "Structs performáticas em Go - padding, word size e clock",
+  "headline": "Structs performáticas em Go - padding, word size e clock",
+  "datePublished": "2025-05-11 17:44:00-03:00",
+  "dateModified": "2025-05-12 12:05:51.960173-03:00",
+  "author": {
+    "@type": "Person",
+    "name": "diego",
+    "url": "https://diegofernando.dev/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/order-unsplash.jpg",
+  "url": "https://diegofernando.dev/structs-performaticas-em-go.html",
+  "description": "Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em..."
+}
+</script>
+</head>
+<!-- TODO : Body class -->
+<body class="home-template">
+
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
+    <ul>
+
+              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
+
+    </ul>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" class="has-cover">
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">Structs performáticas em Go - padding, word size e clock</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
+            | <time datetime="11 mai 2025">11 mai 2025</time>
+        </span>
+        <!-- TODO : Modified check -->
+            <span class="post-meta"> | Updated on 12 mai 2025</span>
+            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/order-unsplash.jpg')">
+      </div>
+    </header>
+
+  <section id="wrapper">
+    <a class="hidden-close"></a>
+
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em programação, geralmente associamos o tema à complexidade algorítmica, uso de paralelismo ou <em>pool</em> de conexões. Mas quando tratamos de Go, por ser uma linguagem mais "pé no chão" (menos camadas de abstração), temos mais controle sobre certos detalhes que, em outras linguagens, mal percebemos. A forma como criamos <em>structs</em> é um desses detalhes.</p>
+<p><img alt="Meme" src="/assets/images/meme-padding.jpg"><em>Esse meme pode ser um exagero? Talvez não.</em></p>
+<p>E se eu te disser que a <strong>ordem dos campos</strong> de uma <em>struct</em> pode impactar diretamente a performance em Go? Claro, não é nem de longe a única coisa que vai tornar um <em>software</em> mais eficiente. Performance é um conjunto de fatores. Mas esse aqui é daqueles ajustes finos que podem fazer diferença, principalmente quando estamos lidando com sistemas de larga escala.</p>
+<h1>Como assim, ordem dos campos em struct?</h1>
+<p>Vamos aprofundar a problemática usando um exemplo. </p>
+<h2>Exemplo 1 - <em>Struct</em> original</h2>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s2">&quot;fmt&quot;</span>
+    <span class="s2">&quot;unsafe&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">type</span> <span class="n">Consumer</span> <span class="n">struct</span> <span class="p">{</span>
+    <span class="n">ID</span>      <span class="n">int8</span>     <span class="o">//</span> <span class="mi">1</span> <span class="n">byte</span>
+    <span class="n">Active</span>  <span class="nb">bool</span>     <span class="o">//</span> <span class="mi">1</span> <span class="n">byte</span>
+    <span class="n">Score</span>   <span class="n">float64</span>  <span class="o">//</span> <span class="mi">8</span> <span class="nb">bytes</span>
+    <span class="n">Name</span>    <span class="n">string</span>   <span class="o">//</span> <span class="mi">16</span> <span class="nb">bytes</span>
+    <span class="n">Balance</span> <span class="n">float32</span>  <span class="o">//</span> <span class="mi">4</span> <span class="nb">bytes</span>
+    <span class="n">Age</span>     <span class="n">int16</span>    <span class="o">//</span> <span class="mi">2</span> <span class="nb">bytes</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>No código acima, usamos <code>unsafe.Sizeof</code> para imprimir o tamanho total, em bytes, da <em>struct</em> Consumer.</p>
+<div class="highlight"><pre><span></span><code>fmt.Printf(&quot;Size of Consumer: %d bytes\n&quot;, unsafe.Sizeof(c))
+// Saída: Size of Consumer: 40 bytes
+</code></pre></div>
+
+<h2>Exemplo 2 - Campos reorganizados</h2>
+<p>Agora, vamos fazer uma leve modificação. Iremos <strong>reordenar</strong> os campos da struct <code>Consumer</code> pelo tamanho, do maior para o menor:</p>
+<div class="highlight"><pre><span></span><code>type Consumer struct {
+    Score   float64 // 8 bytes
+    Name    string  // 16 bytes
+    Balance float32 // 4 bytes
+    Age     int16   // 2 bytes
+    ID      int8    // 1 byte
+    Active  bool    // 1 byte
+}
+</code></pre></div>
+
+<p>Executando novamente o código:</p>
+<div class="highlight"><pre><span></span><code>fmt.Printf(&quot;Size of Consumer: %d bytes\n&quot;, unsafe.Sizeof(c))
+// Saída: Size of Consumer: 32 bytes
+</code></pre></div>
+
+<p>Conseguimos uma economia de <strong>8 bytes</strong> só com essa reorganização. Isso mostra como uma mudança aparentemente inocente pode fazer diferença.</p>
+<h1>Organização, <em>padding</em> e <em>word size</em></h1>
+<p>Mas por que isso acontece? Por que a ordem dos campos muda o tamanho da struct? A explicação está em como a memória é organizada e como a CPU trabalha com alinhamentos. Fazendo um <em>raio-x</em> dos campos da <em>struct</em>, a soma total resulta em <strong>32 bytes</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Tamanho</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td><code>int8</code></td>
+<td>1 byte</td>
+</tr>
+<tr>
+<td>Active</td>
+<td><code>bool</code></td>
+<td>1 byte</td>
+</tr>
+<tr>
+<td>Score</td>
+<td><code>float64</code></td>
+<td>8 bytes</td>
+</tr>
+<tr>
+<td>Name</td>
+<td><code>string</code></td>
+<td>16 bytes</td>
+</tr>
+<tr>
+<td>Balance</td>
+<td><code>float32</code></td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>Age</td>
+<td><code>int16</code></td>
+<td>2 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Soma: <code>1 + 1 + 8 + 16 + 4 + 2 = 32 bytes</code></p>
+<p>Para saber o motivo da primeira versão ter reservado <strong>40 bytes</strong>, precisamos entender os conceitos de <strong><em>word size</em></strong> e <strong><em>padding</em></strong>.</p>
+<h2><em>word size</em></h2>
+<p>Imagine que toda vez que a CPU busca algo na memória, ela acessa "palavras" inteiras por ciclo de <em>clock</em>. Essa palavra tem tamanho fixo. É o que chamamos de <em>word size</em>. Em sistemas de 64 bits, uma word equivale a <strong>8 bytes</strong>. Já em sistemas de 32 bits, são <strong>4 bytes</strong>. Neste exemplo, vamos considerar um sistema de <strong>64 bits</strong>.</p>
+<h2><em>padding</em></h2>
+<p>Os dados da <em>struct</em> <strong>precisam ser alinhados em posições de memória que sejam múltiplos de seu próprio tamanho</strong>. Isso facilita o trabalho da CPU, que consegue acessar os dados mais rápido. Se por um lado, aumentamos a eficiência ao acessar a memória, por outro, isso pode gerar espaços "vazios" entre os campos, chamados de <em>padding</em>.</p>
+<h2>Visualizando o <em>clock</em></h2>
+<p>Vamos imaginar cada bloco de 8 bytes como um "ciclo de clock", começando pela <em>struct</em> desorganizada:</p>
+<p><img alt="Struct desorganizada" src="/assets/images/padding.png"><em>Struct desorganizada.</em></p>
+<p>Veja que <code>ID</code> e <code>Active</code>, por estarem no início, ocupam as duas primeiras posições de memória. No entanto, a variável <code>Score</code> não pode começar logo em seguida. Ela precisa aguardar até o próximo bloco de 8 bytes, já que, por ter exatamente esse tamanho, só pode ser alocada em um endereço múltiplo de 8. Já os campos <code>Name</code>, <code>Balance</code> e <code>Age</code> conseguem se encaixar sem maiores problemas após isso. As posições de memória que ficam vazias nesse processo são chamadas de <em>padding</em>.</p>
+<p>Podemos dizer, então, que tivemos um desperdício de <strong>8 bytes</strong> (devemos contar sempre os <em>paddings</em> para medir). </p>
+<p>Agora vamos vizualizar a organização com a mudança na ordem de definição de campos da <em>struct</em>:</p>
+<p><img alt="Struct organizada" src="/assets/images/padding-correct.png"><em>Struct organizada.</em></p>
+<p>Agora, com a nova ordem dos campos, o <code>Score</code> ocupa perfeitamente o primeiro bloco de 8 bytes. Em seguida, o <code>Name</code>, que tem 16 bytes, preenche os dois blocos seguintes sem desperdício. No quarto bloco, temos o <code>Balance</code> (4 bytes) seguido por <code>Age</code> (2 bytes), <code>ID</code> (1 byte) e <code>Active</code> (1 byte), encaixando exatamente os 8 bytes disponíveis. Com isso, eliminamos os espaços vazios da versão anterior e conseguimos <strong>economizar 8 bytes de memória</strong> de forma simples e eficiente 🚀.</p>
+<h1>Ferramenta de análise <strong>fieldalignment</strong></h1>
+<p>Em Go existem ferramentas que analisam automaticamente a <strong>struct</strong> e faz as correções necessárias visando a otimização. Uma dessas ferramentas é o <strong>fieldalignment</strong>. Para fazer a sua instalação execute o comando abaixo:</p>
+<div class="highlight"><pre><span></span><code><span class="n">go</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">golang</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">x</span><span class="o">/</span><span class="n">tools</span><span class="o">/</span><span class="n">go</span><span class="o">/</span><span class="n">analysis</span><span class="o">/</span><span class="n">passes</span><span class="o">/</span><span class="n">fieldalignment</span><span class="o">/</span><span class="n">cmd</span><span class="o">/</span><span class="n">fieldalignment</span><span class="err">@</span><span class="n">latest</span><span class="w"></span>
+</code></pre></div>
+
+<p>Para usar, é bastante simples! Basta rodar o comando <code>fieldalignment ./...</code>. Você verá algo como:</p>
+<div class="highlight"><pre><span></span><code><span class="n">diego</span><span class="nv">@diego</span><span class="o">-</span><span class="nl">workstation</span><span class="p">:</span><span class="o">~</span><span class="err">$</span><span class="w"> </span><span class="n">fieldalignment</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="p">...</span><span class="w"></span>
+<span class="n">main</span><span class="p">.</span><span class="k">go</span><span class="err">:</span><span class="mi">8</span><span class="err">:</span><span class="mi">15</span><span class="err">:</span><span class="w"> </span><span class="n">struct</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="mi">32</span><span class="w"></span>
+</code></pre></div>
+
+<p>Após isso, para efetuar as alterações, basta passar o argumento <code>-fix</code> neste comando:</p>
+<div class="highlight"><pre><span></span><code>fieldalignment -fix ./...
+</code></pre></div>
+
+<h1>Considerações finais</h1>
+<p>Neste post, vimos que até mesmo pequenas mudanças (que às vezes passam despercebidas) podem impactar bastante o ciclo de vida de um software. Quando falamos de Go, então, isso fica ainda mais evidente. Me conta nos comentários <strong>quais outros cenários em Go são sensíveis e podem ser verdadeiros game changers quando o assunto é performance?</strong> 😊</p>
+<p>Até a próxima :)</p>
+<h4>Referências</h4>
+<ul>
+<li><a href="https://themsaid.com/struct-optimizations-in-go">https://themsaid.com/struct-optimizations-in-go</a></li>
+<li><a href="https://medium.com/fretebras-tech/dica-de-otimiza%C3%A7%C3%A3o-em-go-a-ordem-dos-campos-em-structs-importa-de9f822b6119">https://medium.com/fretebras-tech/dica-de-otimiza%C3%A7%C3%A3o-em-go-a-ordem-dos-campos-em-structs-importa-de9f822b6119</a></li>
+<li><a href="https://vinnynordi.com/construindo-structs-em-go-da-maneira-correta-31bf5ff289d9">https://vinnynordi.com/construindo-structs-em-go-da-maneira-correta-31bf5ff289d9</a></li>
+</ul>
+            </section>
+
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=Structs performáticas em Go - padding, word size e clock&amp;url=https://diegofernando.dev/structs-performaticas-em-go.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/structs-performaticas-em-go.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <div class="clear"></div>
+                </div>
+
+                <aside class="post-tags">
+<a href="https://diegofernando.dev/tag/golang">golang</a><a href="https://diegofernando.dev/tag/backend">backend</a><a href="https://diegofernando.dev/tag/programacao">programação</a>                </aside>
+
+                <div class="clear"></div>
+
+                <aside class="post-author">
+
+
+                        <figure class="post-author-avatar">
+                            <img src="https://diegofernando.dev/assets/images/eu-df.jpeg" alt="Diego Fernando" />
+                        </figure>
+                    <div class="post-author-bio">
+                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
+                            <p class="post-author-about">Software Engineer. Enthusiast of distributed systems, programming languages and Brazilian music. Proudly born and raised in northeastern Brazil ❤️.</p>
+                            <span class="post-author-location"><i class="ic ic-location"></i> Brazil</span>
+                            <span class="post-author-website"><a href="https://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
+                        <!-- Social linkes in alphabet order. -->
+                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
+                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
+                    </div>
+                    <div class="clear"></div>
+                </aside>
+
+                </section>
+
+                <script type="text/javascript">
+                    var disqus = 'diegofsousa';
+                    var disqus_shortname = 'diegofsousa';
+                    var disqus_identifier = '/structs-performaticas-em-go.html';
+                    var disqus_url = 'https://diegofernando.dev/structs-performaticas-em-go.html';
+                </script>
+                <noscript>Please enable JavaScript to view the comments.</noscript>
+                <section class="post-comments">
+                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/structs-performaticas-em-go.html" >Show Comments</a>
+                    <div id="disqus_thread"></div>
+                </section>
+
+                <aside class="post-nav">
+                    <a class="post-nav-prev" href="https://diegofernando.dev/erros-comuns-cometidos-em-go.html">
+                        <section class="post-nav-teaser">
+                            <i class="ic ic-arrow-right"></i>
+                                <h2 class="post-nav-title">Erros comuns cometidos em Go - Parte I</h2>
+                            <p class="post-nav-excerpt">Go é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou...</p>
+                        </section>
+                    </a>
+                    <div class="clear"></div>
+                </aside>
+
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
+
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
+        </section>
+      </div>
+    </footer>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178470984-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-178470984-1', { 'anonymize_ip': true });
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'diegofsousa';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
