@@ -1,5 +1,736 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Diego Fernando</title><link href="https://diegofernando.dev/" rel="alternate"></link><link href="https://diegofernando.dev/feeds/all.atom.xml" rel="self"></link><id>https://diegofernando.dev/</id><updated>2022-10-09T21:41:31-03:00</updated><subtitle>I'm a technology enthusiast and programmer</subtitle><entry><title>[PT] Entendendo o package Context em Go</title><link href="https://diegofernando.dev/entendendo-o-package-context-em-go.html" rel="alternate"></link><published>2022-10-09T10:05:00-03:00</published><updated>2022-10-09T21:41:31-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2022-10-09:/entendendo-o-package-context-em-go.html</id><summary type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote &lt;strong&gt;context.Context&lt;/strong&gt; é um deles. Então, let's go!&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Diego Fernando</title><link href="https://diegofernando.dev/" rel="alternate"></link><link href="https://diegofernando.dev/feeds/all.atom.xml" rel="self"></link><id>https://diegofernando.dev/</id><updated>2026-09-12T19:28:57-03:00</updated><subtitle>I'm a technology enthusiast and programmer</subtitle><entry><title>Structs performáticas em Go - padding, word size e clock</title><link href="https://diegofernando.dev/structs-performaticas-em-go.html" rel="alternate"></link><published>2025-05-11T17:44:00-03:00</published><updated>2026-09-12T19:28:57-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2025-05-11:/structs-performaticas-em-go.html</id><summary type="html">&lt;p&gt;Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em programação, geralmente associamos o tema à complexidade algorítmica, uso de paralelismo ou &lt;em&gt;pool&lt;/em&gt; de conexões. Mas quando tratamos de Go, por ser uma linguagem mais "pé no chão …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais linguagens. Quando falamos sobre performance em programação, geralmente associamos o tema à complexidade algorítmica, uso de paralelismo ou &lt;em&gt;pool&lt;/em&gt; de conexões. Mas quando tratamos de Go, por ser uma linguagem mais "pé no chão" (menos camadas de abstração), temos mais controle sobre certos detalhes que, em outras linguagens, mal percebemos. A forma como criamos &lt;em&gt;structs&lt;/em&gt; é um desses detalhes.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Meme" src="/assets/images/meme-padding.jpg"&gt;&lt;em&gt;Esse meme pode ser um exagero? Talvez não.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;E se eu te disser que a &lt;strong&gt;ordem dos campos&lt;/strong&gt; de uma &lt;em&gt;struct&lt;/em&gt; pode impactar diretamente a performance em Go? Claro, não é nem de longe a única coisa que vai tornar um &lt;em&gt;software&lt;/em&gt; mais eficiente. Performance é um conjunto de fatores. Mas esse aqui é daqueles ajustes finos que podem fazer diferença, principalmente quando estamos lidando com sistemas de larga escala.&lt;/p&gt;
+&lt;h1&gt;Como assim, ordem dos campos em struct?&lt;/h1&gt;
+&lt;p&gt;Vamos aprofundar a problemática usando um exemplo. &lt;/p&gt;
+&lt;h2&gt;Exemplo 1 - &lt;em&gt;Struct&lt;/em&gt; original&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;unsafe&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="n"&gt;Consumer&lt;/span&gt; &lt;span class="n"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ID&lt;/span&gt;      &lt;span class="n"&gt;int8&lt;/span&gt;     &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt;
+    &lt;span class="n"&gt;Active&lt;/span&gt;  &lt;span class="nb"&gt;bool&lt;/span&gt;     &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt;
+    &lt;span class="n"&gt;Score&lt;/span&gt;   &lt;span class="n"&gt;float64&lt;/span&gt;  &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt; &lt;span class="nb"&gt;bytes&lt;/span&gt;
+    &lt;span class="n"&gt;Name&lt;/span&gt;    &lt;span class="n"&gt;string&lt;/span&gt;   &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt; &lt;span class="nb"&gt;bytes&lt;/span&gt;
+    &lt;span class="n"&gt;Balance&lt;/span&gt; &lt;span class="n"&gt;float32&lt;/span&gt;  &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="nb"&gt;bytes&lt;/span&gt;
+    &lt;span class="n"&gt;Age&lt;/span&gt;     &lt;span class="n"&gt;int16&lt;/span&gt;    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="nb"&gt;bytes&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;No código acima, usamos &lt;code&gt;unsafe.Sizeof&lt;/code&gt; para imprimir o tamanho total, em bytes, da &lt;em&gt;struct&lt;/em&gt; Consumer.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;fmt.Printf(&amp;quot;Size of Consumer: %d bytes\n&amp;quot;, unsafe.Sizeof(c))
+// Saída: Size of Consumer: 40 bytes
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;Exemplo 2 - Campos reorganizados&lt;/h2&gt;
+&lt;p&gt;Agora, vamos fazer uma leve modificação. Iremos &lt;strong&gt;reordenar&lt;/strong&gt; os campos da struct &lt;code&gt;Consumer&lt;/code&gt; pelo tamanho, do maior para o menor:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;type Consumer struct {
+    Score   float64 // 8 bytes
+    Name    string  // 16 bytes
+    Balance float32 // 4 bytes
+    Age     int16   // 2 bytes
+    ID      int8    // 1 byte
+    Active  bool    // 1 byte
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Executando novamente o código:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;fmt.Printf(&amp;quot;Size of Consumer: %d bytes\n&amp;quot;, unsafe.Sizeof(c))
+// Saída: Size of Consumer: 32 bytes
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Conseguimos uma economia de &lt;strong&gt;8 bytes&lt;/strong&gt; só com essa reorganização. Isso mostra como uma mudança aparentemente inocente pode fazer diferença.&lt;/p&gt;
+&lt;h1&gt;Organização, &lt;em&gt;padding&lt;/em&gt; e &lt;em&gt;word size&lt;/em&gt;&lt;/h1&gt;
+&lt;p&gt;Mas por que isso acontece? Por que a ordem dos campos muda o tamanho da struct? A explicação está em como a memória é organizada e como a CPU trabalha com alinhamentos. Fazendo um &lt;em&gt;raio-x&lt;/em&gt; dos campos da &lt;em&gt;struct&lt;/em&gt;, a soma total resulta em &lt;strong&gt;32 bytes&lt;/strong&gt;:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Campo&lt;/th&gt;
+&lt;th&gt;Tipo&lt;/th&gt;
+&lt;th&gt;Tamanho&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ID&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;int8&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;1 byte&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Active&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;bool&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;1 byte&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Score&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;float64&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;8 bytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;string&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;16 bytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Balance&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;float32&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;4 bytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Age&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;int16&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;2 bytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Soma: &lt;code&gt;1 + 1 + 8 + 16 + 4 + 2 = 32 bytes&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Para saber o motivo da primeira versão ter reservado &lt;strong&gt;40 bytes&lt;/strong&gt;, precisamos entender os conceitos de &lt;strong&gt;&lt;em&gt;word size&lt;/em&gt;&lt;/strong&gt; e &lt;strong&gt;&lt;em&gt;padding&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;em&gt;word size&lt;/em&gt;&lt;/h2&gt;
+&lt;p&gt;Imagine que toda vez que a CPU busca algo na memória, ela acessa "palavras" inteiras por ciclo de &lt;em&gt;clock&lt;/em&gt;. Essa palavra tem tamanho fixo. É o que chamamos de &lt;em&gt;word size&lt;/em&gt;. Em sistemas de 64 bits, uma word equivale a &lt;strong&gt;8 bytes&lt;/strong&gt;. Já em sistemas de 32 bits, são &lt;strong&gt;4 bytes&lt;/strong&gt;. Neste exemplo, vamos considerar um sistema de &lt;strong&gt;64 bits&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;em&gt;padding&lt;/em&gt;&lt;/h2&gt;
+&lt;p&gt;Os dados da &lt;em&gt;struct&lt;/em&gt; &lt;strong&gt;precisam ser alinhados em posições de memória que sejam múltiplos de seu próprio tamanho&lt;/strong&gt;. Isso facilita o trabalho da CPU, que consegue acessar os dados mais rápido. Se por um lado, aumentamos a eficiência ao acessar a memória, por outro, isso pode gerar espaços "vazios" entre os campos, chamados de &lt;em&gt;padding&lt;/em&gt;.&lt;/p&gt;
+&lt;h2&gt;Visualizando o &lt;em&gt;clock&lt;/em&gt;&lt;/h2&gt;
+&lt;p&gt;Vamos imaginar cada bloco de 8 bytes como um "ciclo de clock", começando pela &lt;em&gt;struct&lt;/em&gt; desorganizada:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Struct desorganizada" src="/assets/images/padding.png"&gt;&lt;em&gt;Struct desorganizada.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Veja que &lt;code&gt;ID&lt;/code&gt; e &lt;code&gt;Active&lt;/code&gt;, por estarem no início, ocupam as duas primeiras posições de memória. No entanto, a variável &lt;code&gt;Score&lt;/code&gt; não pode começar logo em seguida. Ela precisa aguardar até o próximo bloco de 8 bytes, já que, por ter exatamente esse tamanho, só pode ser alocada em um endereço múltiplo de 8. Já os campos &lt;code&gt;Name&lt;/code&gt;, &lt;code&gt;Balance&lt;/code&gt; e &lt;code&gt;Age&lt;/code&gt; conseguem se encaixar sem maiores problemas após isso. As posições de memória que ficam vazias nesse processo são chamadas de &lt;em&gt;padding&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Podemos dizer, então, que tivemos um desperdício de &lt;strong&gt;8 bytes&lt;/strong&gt; (devemos contar sempre os &lt;em&gt;paddings&lt;/em&gt; para medir). &lt;/p&gt;
+&lt;p&gt;Agora vamos vizualizar a organização com a mudança na ordem de definição de campos da &lt;em&gt;struct&lt;/em&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Struct organizada" src="/assets/images/padding-correct.png"&gt;&lt;em&gt;Struct organizada.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Agora, com a nova ordem dos campos, o &lt;code&gt;Score&lt;/code&gt; ocupa perfeitamente o primeiro bloco de 8 bytes. Em seguida, o &lt;code&gt;Name&lt;/code&gt;, que tem 16 bytes, preenche os dois blocos seguintes sem desperdício. No quarto bloco, temos o &lt;code&gt;Balance&lt;/code&gt; (4 bytes) seguido por &lt;code&gt;Age&lt;/code&gt; (2 bytes), &lt;code&gt;ID&lt;/code&gt; (1 byte) e &lt;code&gt;Active&lt;/code&gt; (1 byte), encaixando exatamente os 8 bytes disponíveis. Com isso, eliminamos os espaços vazios da versão anterior e conseguimos &lt;strong&gt;economizar 8 bytes de memória&lt;/strong&gt; de forma simples e eficiente 🚀.&lt;/p&gt;
+&lt;h1&gt;Ferramenta de análise &lt;strong&gt;fieldalignment&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;Em Go existem ferramentas que analisam automaticamente a &lt;strong&gt;struct&lt;/strong&gt; e faz as correções necessárias visando a otimização. Uma dessas ferramentas é o &lt;strong&gt;fieldalignment&lt;/strong&gt;. Para fazer a sua instalação execute o comando abaixo:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;go&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;install&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;golang&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;org&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;go&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;analysis&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;passes&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;fieldalignment&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;fieldalignment&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;latest&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Para usar, é bastante simples! Basta rodar o comando &lt;code&gt;fieldalignment ./...&lt;/code&gt;. Você verá algo como:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;diego&lt;/span&gt;&lt;span class="nv"&gt;@diego&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nl"&gt;workstation&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;fieldalignment&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;go&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;struct&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;of&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;size&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;could&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;be&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Após isso, para efetuar as alterações, basta passar o argumento &lt;code&gt;-fix&lt;/code&gt; neste comando:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;fieldalignment -fix ./...
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1&gt;Considerações finais&lt;/h1&gt;
+&lt;p&gt;Neste post, vimos que até mesmo pequenas mudanças (que às vezes passam despercebidas) podem impactar bastante o ciclo de vida de um software. Quando falamos de Go, então, isso fica ainda mais evidente. Me conta nos comentários &lt;strong&gt;quais outros cenários em Go são sensíveis e podem ser verdadeiros game changers quando o assunto é performance?&lt;/strong&gt; 😊&lt;/p&gt;
+&lt;p&gt;Até a próxima :)&lt;/p&gt;
+&lt;h4&gt;Referências&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://themsaid.com/struct-optimizations-in-go"&gt;https://themsaid.com/struct-optimizations-in-go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://medium.com/fretebras-tech/dica-de-otimiza%C3%A7%C3%A3o-em-go-a-ordem-dos-campos-em-structs-importa-de9f822b6119"&gt;https://medium.com/fretebras-tech/dica-de-otimiza%C3%A7%C3%A3o-em-go-a-ordem-dos-campos-em-structs-importa-de9f822b6119&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://vinnynordi.com/construindo-structs-em-go-da-maneira-correta-31bf5ff289d9"&gt;https://vinnynordi.com/construindo-structs-em-go-da-maneira-correta-31bf5ff289d9&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="misc"></category><category term="golang"></category><category term="backend"></category><category term="programação"></category></entry><entry><title>Erros comuns cometidos em Go - Parte I</title><link href="https://diegofernando.dev/erros-comuns-cometidos-em-go.html" rel="alternate"></link><published>2025-04-25T17:44:00-03:00</published><updated>2025-04-26T16:51:34-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2025-04-25:/erros-comuns-cometidos-em-go.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;Go&lt;/strong&gt; é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse perfil faz com que muitos desenvolvedores, cometam alguns deslizes. Equívocos podem acontecer tanto com iniciantes quanto com profissionais mais experientes. Inclusive, por experiência própria, já me peguei utilizando traços de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;strong&gt;Go&lt;/strong&gt; é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse perfil faz com que muitos desenvolvedores, cometam alguns deslizes. Equívocos podem acontecer tanto com iniciantes quanto com profissionais mais experientes. Inclusive, por experiência própria, já me peguei utilizando traços de outra linguagem ao programar em Go.&lt;/p&gt;
+&lt;p&gt;Neste artigo, apresento &lt;strong&gt;5 erros comuns&lt;/strong&gt; cometidos por quem está se aventurando na linguagem. Alguns dos pontos listados refletem situações que presencio no dia a dia. Além disso, fiz uma pesquisa para identificar outros cenários recorrentes. Essa é uma lista curada que pode fazer sentido principalmente para &lt;em&gt;gophers&lt;/em&gt; de primeira viagem. Então vamos à lista:&lt;/p&gt;
+&lt;h1&gt;#1: Passando valores em vez de ponteiros&lt;/h1&gt;
+&lt;p&gt;Neste caso, não se trata necessariamente de um erro. Na verdade, não há qualquer problema em passar valores diretamente, especialmente para tipos pequenos como &lt;code&gt;int&lt;/code&gt;, &lt;code&gt;string&lt;/code&gt; e &lt;code&gt;bool&lt;/code&gt;. Porém, essa escolha faz diferença quando lidamos com tipos maiores, como uma struct que contém vários arrays.&lt;/p&gt;
+&lt;p&gt;Sempre que criamos uma função ou método que recebe um argumento por valor, o Go &lt;strong&gt;cria uma cópia&lt;/strong&gt; do elemento dentro do escopo da função. Para ilustrar isso, vamos fazer um experimento: criaremos uma variável chamada &lt;code&gt;name&lt;/code&gt; e uma função &lt;code&gt;showName&lt;/code&gt;, na qual essa variável será passada por valor:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;
+
+    &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Apesar de ser uma prática bastante comum, é importante entender exatamente o que está acontecendo. A execução do método &lt;code&gt;showName&lt;/code&gt; implica na reserva de um novo espaço de memória para armazenar a cópia de &lt;code&gt;name&lt;/code&gt;. Podemos fazer um pequena modificação no código para ilustrar:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Nesta nova versão, imprimimos tanto o valor de &lt;code&gt;name&lt;/code&gt; quanto seu endereço de memória no método &lt;code&gt;main&lt;/code&gt; e dentro de &lt;code&gt;showName&lt;/code&gt;. A saída será:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="n"&gt;xc000120040&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="n"&gt;xc000120050&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;Program&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;exited&lt;/span&gt;&lt;span class="mf"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Os endereços &lt;code&gt;0xc000120040&lt;/code&gt; e &lt;code&gt;0xc000120050&lt;/code&gt; representam locais diferentes na memória. Isso evidencia que &lt;code&gt;name&lt;/code&gt; foi copiado, ou seja: dentro de &lt;code&gt;showName&lt;/code&gt; estamos trabalhando com uma nova instância, independente da original.&lt;/p&gt;
+&lt;h2&gt;Passando o valor de &lt;code&gt;name&lt;/code&gt; x Passando o ponteiro de &lt;code&gt;name&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Em Go, geralmente sempre passamos valores. Porém, quando queremos manipular o mesmo espaço de memória, enviamos um como valor um ponteiro, que aponta para o dado original.&lt;/p&gt;
+&lt;p&gt;Com esse conceito em mente, conseguimos entender como funciona a passagem de parâmetros como &lt;strong&gt;valor&lt;/strong&gt; e como &lt;strong&gt;ponteiro&lt;/strong&gt;. Quando usamos a passagem por &lt;strong&gt;valor&lt;/strong&gt;, a função &lt;code&gt;showName&lt;/code&gt; recebe apenas o conteúdo de &lt;code&gt;name&lt;/code&gt;. Agora, vejamos um exemplo de passagem por &lt;strong&gt;ponteiro&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;showName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Modificamos o código anterior. Ao invés de passar o conteúdo de &lt;code&gt;name&lt;/code&gt; para &lt;code&gt;showName&lt;/code&gt;, enviamos seu endereço de memória. Com isso, também alteramos a definição da função: agora ela recebe um ponteiro de &lt;code&gt;string&lt;/code&gt; (&lt;code&gt;*string&lt;/code&gt;), em vez de uma &lt;code&gt;string&lt;/code&gt; simples.&lt;/p&gt;
+&lt;p&gt;A forma de exibir o valor e o endereço de memória muda: para acessar o conteúdo, precisamos &lt;strong&gt;desreferenciar&lt;/strong&gt; (ou &lt;em&gt;dereferenciar&lt;/em&gt;) o ponteiro usando &lt;code&gt;*name&lt;/code&gt;. A saída será:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="n"&gt;xc0000a8040&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="n"&gt;xc0000a8040&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;Program&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;exited&lt;/span&gt;&lt;span class="mf"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Agora estamos manipulando &lt;code&gt;name&lt;/code&gt; diretamente no mesmo endereço de memória. Um ponto interessante é que, se alterarmos o valor de &lt;code&gt;name&lt;/code&gt; dentro da função &lt;code&gt;showName&lt;/code&gt;, a variável original, definida no método &lt;code&gt;main&lt;/code&gt;, também será alterada  (justamente porque ambas compartilham o mesmo espaço de memória).&lt;/p&gt;
+&lt;h1&gt;#2: Acreditar cegamente em ponteiros&lt;/h1&gt;
+&lt;p&gt;Vamos a um caso clássico: declaração de um ponteiro e uso imediato. Quando trabalhamos com ponteiros, o ideal é &lt;strong&gt;verificar se eles não estão nulos&lt;/strong&gt; antes de acessá-los. Uma situação de erro seria:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;var&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;
+
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;A saída para este código é:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nl"&gt;panic&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;runtime&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;invalid&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;or&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;nil&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;pointer&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;dereference&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;signal&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;SIGSEGV&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;segmentation&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;violation&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;pc&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x491476&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;goroutine&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;running&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;tmp&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sandbox2767359061&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;prog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;go&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mh"&gt;0x16&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Ao tentarmos imprimir o valor de &lt;code&gt;test&lt;/code&gt; por meio da desreferenciação, ocorre um erro. Isso acontece porque o ponteiro não foi inicializado e, por padrão, é &lt;code&gt;nil&lt;/code&gt;. A minha dica aqui é: &lt;strong&gt;por padrão, nunca acredite em ponteiros&lt;/strong&gt;. Para este caso, uma verificação básica já evita o erro:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;var&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1&gt;#3: Ignorar erros&lt;/h1&gt;
+&lt;p&gt;Quando lidamos com métodos e funções, normalmente nos deparamos com o seguinte cenário:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;doSomething&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;doSomething&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;do&lt;/span&gt; &lt;span class="n"&gt;sometring&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;some error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;É muito tentador ignorar o tratamento de erros em Go, especialmente devido à sua verbosidade. Porém, não fazer o tratamento adequado é, de longe, a &lt;strong&gt;pior&lt;/strong&gt; coisa que podemos fazer. No código acima, por consequência, iremos esbarrar no mesmo erro já visto anteriormente:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nl"&gt;panic&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;runtime&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;invalid&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;address&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;or&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;nil&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;pointer&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;dereference&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;signal&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;SIGSEGV&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;segmentation&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;violation&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;addr&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;pc&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mh"&gt;0x49438f&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;goroutine&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;running&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;tmp&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sandbox2271710943&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;prog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;go&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mh"&gt;0x2f&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;Program&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;exited&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Em Go, é comum que funções e métodos retornem um erro para sinalizar situações inesperadas. Por isso, sempre devemos considerar a possibilidade de falhas e tratar esses erros adequadamente para manter o fluxo da aplicação seguro. No caso acima, podemos evitar a falha criando um tratamento simples:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;doSomething&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;add&lt;/span&gt; &lt;span class="n"&gt;handling&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;doSomething&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;do&lt;/span&gt; &lt;span class="n"&gt;sometring&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;some error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Assim, garantimos que o programa não sofra interrupções inesperadas.&lt;/p&gt;
+&lt;h1&gt;#4: Supergeneralizar erros&lt;/h1&gt;
+&lt;p&gt;Existe um &lt;a href="https://go.dev/blog/errors-are-values"&gt;discurso bem famoso feito pelo próprio Rob Pike sobre erros&lt;/a&gt;, chamado &lt;strong&gt;&lt;em&gt;"Errors are values"&lt;/em&gt;&lt;/strong&gt;. Isso endossa bem a filosofia da linguagem e nos convida a refletir sobre visão tradicional deste tema.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“&lt;strong&gt;&lt;em&gt;Whatever you do, always check your errors!. -Rob Pike&lt;/em&gt;&lt;/strong&gt;”. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Vamos entender esse ponto com um caso de uso de um sistema que realiza chamadas a um banco de dados:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;log&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt; &lt;span class="n"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;person&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;person&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;person with no name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;diego&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;createPerson&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;createPerson&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;person&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;validate&lt;/span&gt; &lt;span class="n"&gt;person&lt;/span&gt;
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;person&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;db insert error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="n"&gt;instance&lt;/span&gt;
+    &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;GetDB&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;db insert error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="n"&gt;commit&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Commit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;db insert error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Supondo que todas as camadas estejam bem implementadas, esse código tende a funcionar. Mas o problema excede o fato de funcionar ou não. A dúvida implícita neste código é: &lt;em&gt;como sabemos o que &lt;/em&gt;&lt;em&gt;de fato&lt;/em&gt;&lt;em&gt; aconteceu em um erro &lt;code&gt;db insert error&lt;/code&gt;?&lt;/em&gt; Um erro genérico como esse pode ter várias causas diferentes. Podemos melhorar o tratamento assim:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;validate&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;person&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;person&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;nil&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="nv"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;get&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;db&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;instance&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;GetDB&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;nil&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="nv"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;get instance db error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;db&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;commit&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;data&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;Commit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;nil&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="nv"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;db commit error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;return&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;nil&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;...&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Essa pequena mudança já traz um panorama muito mais claro sobre o que de fato ocorreu. Uma sugestão adicional para melhorar ainda mais a tratativa de erros é &lt;strong&gt;implementar a interface de erro do Go&lt;/strong&gt;, criando erros personalizados e enriquecendo as mensagens de retorno. Veremos isso no próximo tópico.&lt;/p&gt;
+&lt;h2&gt;Criando tipos de erros personalizados através da interface &lt;code&gt;error&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;No Go, qualquer tipo que implemente a seguinte interface é considerado um erro:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;type error interface {
+    Error() string
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Quando sobrescrevemos essa interface, temos a possibilidade de criar tipos de erros personalizados. Isso traz muito mais &lt;strong&gt;flexibilidade&lt;/strong&gt;, pois não ficamos mais limitados a usar apenas uma string para identificar o erro. Veja o exemplo abaixo:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;log&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt; &lt;span class="n"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="nb"&gt;type&lt;/span&gt; &lt;span class="n"&gt;CreatePersonError&lt;/span&gt; &lt;span class="n"&gt;struct&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;Op&lt;/span&gt;  &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;failed&lt;/span&gt; &lt;span class="n"&gt;operation&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ex&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;get_db_instance&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;db_commit&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;Err&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;  &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;original&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;CreatePersonError&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;Error&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sprintf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;create person failed at &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;: %v&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Op&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Err&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;person&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;person&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Errorf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;person with no name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;diego&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;createPerson&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;createPerson&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;person&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;Person&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;person&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="n"&gt;instance&lt;/span&gt;
+    &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;GetDB&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;CreatePersonError&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;Op&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="s2"&gt;&amp;quot;get_db_instance&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;Err&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt; &lt;span class="n"&gt;commit&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+    &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Commit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;CreatePersonError&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;Op&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="s2"&gt;&amp;quot;db_commit&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;Err&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Criamos um novo tipo chamado &lt;code&gt;CreatePersonError&lt;/code&gt; e implementamos o método &lt;code&gt;Error()&lt;/code&gt; para ele.
+Assim, capturamos o erro original e conseguimos adicionar informações importantes, como a operação que falhou. Todas essas melhorias facilitam um possível &lt;em&gt;troubleshooting&lt;/em&gt; em cenários de falhas.&lt;/p&gt;
+&lt;h1&gt;#5: Registrar erros com &lt;code&gt;log.Fatal()&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;Quando nosso sistema encontra um erro irrecuperável, registrar o erro com &lt;code&gt;log.Fatal()&lt;/code&gt; pode parecer uma solução conveniente, já que ele registra a mensagem e encerra o processo imediatamente. Porém, o que muitas vezes passa despercebido é que &lt;code&gt;log.Fatal()&lt;/code&gt; internamente faz uma chamada a &lt;code&gt;os.Exit()&lt;/code&gt;.
+Isso é &lt;strong&gt;problemático&lt;/strong&gt; porque impede a execução de qualquer outra rotina de limpeza ou encerramento, como &lt;code&gt;defer&lt;/code&gt;'s ou fechamento de conexões.&lt;/p&gt;
+&lt;p&gt;Por isso, a abordagem recomendada é sempre retornar o erro para o nível superior da aplicação, onde ele possa ser tratado adequadamente. Normalmente, o único local onde o uso de &lt;code&gt;log.Fatal()&lt;/code&gt; é considerado aceitável é dentro da função &lt;code&gt;main()&lt;/code&gt;, onde faz sentido finalizar a execução do programa de maneira controlada.&lt;/p&gt;
+&lt;h1&gt;Considerações finais&lt;/h1&gt;
+&lt;p&gt;Existem muitas outras situações que poderiam ser listadas aqui (&lt;strong&gt;inclusive, me conta nos comentários quais você adicionaria!&lt;/strong&gt; 😊).
+O Go é uma linguagem que tem padrões bem estabelecidos e formas claras de construir soluções. E é completamente normal a gente tropeçar de vez em quando, às vezes por descuido, por falta de atenção ou simplesmente pela correria do dia a dia (&lt;em&gt;afinal, todos temos prazos, né?&lt;/em&gt;).&lt;/p&gt;
+&lt;p&gt;Neste post, quis compartilhar algumas situações que já vi acontecer (algumas vividas na pele) errando, aprendendo e, claro, criando alguns bugs no caminho. A ideia foi trazer um pouco dessas experiências e boas práticas que fazem parte do ecossistema Go.&lt;/p&gt;
+&lt;p&gt;Minha intenção é transformar esse post em uma série, então fica por aqui e vamos seguir aprendendo juntos.&lt;/p&gt;
+&lt;p&gt;Até a próxima :)&lt;/p&gt;
+&lt;h4&gt;Referências&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.jetbrains.com/guide/go/tutorials/handle_errors_in_go/common_mistakes/"&gt;https://www.jetbrains.com/guide/go/tutorials/handle_errors_in_go/common_mistakes/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://medium.com/@sebdah/go-best-practices-error-handling-2d15e1f0c5ee"&gt;https://medium.com/@sebdah/go-best-practices-error-handling-2d15e1f0c5ee&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://earthly.dev/blog/learning-golang-common-mistakes-to-avoid/"&gt;https://earthly.dev/blog/learning-golang-common-mistakes-to-avoid/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://weilson.medium.com/top-5-most-common-mistakes-in-golang-56be1be9d676"&gt;https://weilson.medium.com/top-5-most-common-mistakes-in-golang-56be1be9d676&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go.dev/blog/errors-are-values"&gt;https://go.dev/blog/errors-are-values&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="misc"></category><category term="golang"></category><category term="backend"></category><category term="programação"></category></entry><entry><title>O Go não foi feito pra ser bonito... e isso não deveria ser um problema.</title><link href="https://diegofernando.dev/o-go-nao-foi-feito-pra-ser-bonito.html" rel="alternate"></link><published>2025-04-20T10:05:00-03:00</published><updated>2025-04-21T13:16:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2025-04-20:/o-go-nao-foi-feito-pra-ser-bonito.html</id><summary type="html">&lt;h1&gt;É isso mesmo que você leu: o Go não foi feito para ser bonito&lt;/h1&gt;
+&lt;p&gt;Essa frase, apesar de forte, não soa tão impactante para quem já utiliza essa linguagem. Ou, pelo menos, não deveria. Assim como grande parte das linguagens populares atualmente, Go é uma linguagem &lt;em&gt;C-like&lt;/em&gt;, ou seja, baseada …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;É isso mesmo que você leu: o Go não foi feito para ser bonito&lt;/h1&gt;
+&lt;p&gt;Essa frase, apesar de forte, não soa tão impactante para quem já utiliza essa linguagem. Ou, pelo menos, não deveria. Assim como grande parte das linguagens populares atualmente, Go é uma linguagem &lt;em&gt;C-like&lt;/em&gt;, ou seja, baseada em C. Por isso, muito do código escrito em Go é, de fato, inspirado em C.&lt;/p&gt;
+&lt;p&gt;Go surgiu em 2009, após Rob Pike e Ken Thompson liderarem o projeto inicial dentro do Google. A motivação era uma frustração com o cenário das linguagens existentes, devido a um dilema clássico da programação: escolher entre &lt;strong&gt;compilação eficiente&lt;/strong&gt;, &lt;strong&gt;execução eficiente&lt;/strong&gt; ou &lt;strong&gt;facilidade de programação&lt;/strong&gt;. Na época, muitas das linguagens ainda em uso hoje, como Python e JavaScript, já estavam em evidência. Isso se dava pelo fato de que os desenvolvedores vinham migrando aos poucos para linguagens com tipagem dinâmica, em detrimento da tipagem forte, como C++ e Java.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“&lt;strong&gt;&lt;em&gt;We were not alone in our concerns. After many years with a pretty quiet landscape for programming languages, Go was among the first of several new languages—Rust, Elixir, Swift, and more—that have made programming language development an active, almost mainstream field again. -official doc&lt;/em&gt;&lt;/strong&gt;”. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img alt="Memesobre performance em Go" src="/assets/images/meme-go.png"&gt;&lt;em&gt;O simples funciona.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;A escolha entre uma linguagem eficiente ou fluída em termos de dinâmica tem grande impacto na concepção de um software. Essas são características que, até então, não coexistiam em uma única linguagem ou tecnologia. Rob e Ken insistiram na ideia de que era possível criar um ecossistema que comportasse as duas vertentes. Ainda bem, né? :)&lt;/p&gt;
+&lt;h1&gt;Go e eficiência: tudo a ver?&lt;/h1&gt;
+&lt;p&gt;Sim, e vai além disso: podemos afirmar que Go &lt;strong&gt;foi projetada com foco em eficiência&lt;/strong&gt;. Há diversos fatores que demonstram essa preocupação, aqui nos ateremos a alguns deles, começando pelo fator compilação.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Usando o &amp;quot;go build&amp;quot;" src="/assets/images/build-go.gif"&gt;&lt;em&gt;Usando o "go build".&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Diferente de linguagens como Python e Ruby, Go é compilada, o que, por si só, já a torna mais rápida e eficiente. Em relação a outras que utilizam máquina virtual, a exemplo de Java e Kotlin, temos uma grata surpresa: Go compila diretamente para código de máquina. Sem a necessidade da JVM como intermediária, a velocidade de execução é superior.&lt;/p&gt;
+&lt;h2&gt;Um parêntese importante: Goroutines&lt;/h2&gt;
+&lt;p&gt;Concorrência é um dos pontos em que Go mais se destaca. Enquanto muitas linguagens sobrecarregam recursos ao utilizar &lt;em&gt;threads&lt;/em&gt;, Go opera com um custo muito menor graças às &lt;strong&gt;Goroutines&lt;/strong&gt;, sua abordagem para criação de código concorrente. Go possui um escalonador de tarefas próprio, que não depende de recursos externos para gerenciar processos simultâneos. Esse ponto, isoladamente, já merece um artigo exclusivo 👀.&lt;/p&gt;
+&lt;p&gt;O objetivo deste artigo não é trazer &lt;em&gt;benchmarks&lt;/em&gt;, provar pontos de performance da linguagem Go ou tentar convencer alguém a usar. O intuito é fazer uma reflexão em cima das características de uma linguagem. Entretanto, caso queira explorar mais a fundo, há um &lt;a href="https://go.dev/wiki/Benchmarks"&gt;"monitoramento" de benchmarks&lt;/a&gt; disponível na documentação oficial.&lt;/p&gt;
+&lt;h1&gt;Ah, não é tão feio assim, vai!&lt;/h1&gt;
+&lt;p&gt;Ok, ainda temos um ponto a discutir. Talvez um dos principais motivos que afastam novos usuários do Go seja sua sintaxe. Mas será que ela é realmente tão ruim quanto dizem? Parafraseando a própria documentação oficial:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“&lt;strong&gt;&lt;em&gt;Go attempts to reduce the amount of typing in both senses of the word. Throughout its design, we have tried to reduce clutter and complexity. There are no forward declarations and no header files; everything is declared exactly once. Initialization is expressive, automatic, and easy to use.. -official doc&lt;/em&gt;&lt;/strong&gt;”. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Para entender melhor, vamos comparar a sintaxe de Go com outras linguagens. Para sermos justos, os exemplos não utilizarão bibliotecas externas, nem o clássico "Hello, World". As linguagens escolhidas para a análise são Python, JavaScript e Java.&lt;/p&gt;
+&lt;h3&gt;Requisição HTTP e leitura JSON&lt;/h3&gt;
+&lt;p&gt;Neste primeiro exemplo, faremos uma requisição HTTP e o tratamento da resposta em JSON.&lt;/p&gt;
+&lt;h4&gt;Go&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;encoding/json&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;net/http&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;https://jsonplaceholder.typicode.com/posts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;panic&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;defer&lt;/span&gt; &lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Body&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="n"&gt;var&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;&lt;span class="nb"&gt;map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="n"&gt;interface&lt;/span&gt;&lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NewDecoder&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Body&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Decode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="n"&gt;err&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;nil&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;panic&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;First post title:&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;title&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;Python&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;urllib.request&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
+
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;urlopen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;https://jsonplaceholder.typicode.com/posts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;First post title:&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;title&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;JavaScript&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;https&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;https://jsonplaceholder.typicode.com/posts&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;data&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;chunk&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;end&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;JSON&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;console&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;First post title:&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;});&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;error&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;console&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;Java&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.io.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.net.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;javax.json.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Main&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="n"&gt;static&lt;/span&gt; &lt;span class="n"&gt;void&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;throws&lt;/span&gt; &lt;span class="ne"&gt;Exception&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="n"&gt;URL&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;https://jsonplaceholder.typicode.com/posts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;HttpURLConnection&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpURLConnection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;openConnection&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setRequestMethod&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;GET&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+        &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InputStream&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;conn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getInputStream&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+             &lt;span class="n"&gt;JsonReader&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;createReader&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ow"&gt;is&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+            &lt;span class="n"&gt;JsonArray&lt;/span&gt; &lt;span class="n"&gt;array&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readArray&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+            &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;First post title: &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getJsonObject&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;title&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3&gt;Execução paralela&lt;/h3&gt;
+&lt;p&gt;Agora, executaremos três tarefas simultaneamente. Vale lembrar que Go trata tarefas concorrentes (e não paralelas) com Goroutines.&lt;/p&gt;
+&lt;h4&gt;Go&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;sync&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;time&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;wg&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;sync&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WaitGroup&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;defer&lt;/span&gt; &lt;span class="n"&gt;wg&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Done&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Task&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;var&lt;/span&gt; &lt;span class="n"&gt;wg&lt;/span&gt; &lt;span class="n"&gt;sync&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WaitGroup&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;wg&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;go&lt;/span&gt; &lt;span class="n"&gt;task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;wg&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;wg&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;All tasks completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;Python&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;threading&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Task &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;threads&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;threading&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;task&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;,))&lt;/span&gt;
+    &lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;All tasks completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;JavaScript&lt;/h4&gt;
+&lt;p&gt;Não se aplica.&lt;/p&gt;
+&lt;h4&gt;Java&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;Main&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;static&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="err"&gt;[]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;throws&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="err"&gt;[]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="n"&gt;final&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;(()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                    &lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2000&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                    &lt;/span&gt;&lt;span class="k"&gt;System&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;out&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Task &amp;quot;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="ss"&gt;&amp;quot; completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;catch&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                    &lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;printStackTrace&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;                &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;start&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Thread&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;threads&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;join&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="k"&gt;System&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;out&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;All tasks completed&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3&gt;Leitura de arquivo CSV&lt;/h3&gt;
+&lt;p&gt;Por fim, vamos ler um arquivo CSV com os campos &lt;code&gt;nome,idade&lt;/code&gt; e somar as idades.&lt;/p&gt;
+&lt;h4&gt;Go&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;package&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;encoding/csv&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;fmt&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;os&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;strconv&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;func&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;data.csv&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;defer&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;csv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NewReader&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;records&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ReadAll&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;row&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="nb"&gt;range&lt;/span&gt; &lt;span class="n"&gt;records&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;_&lt;/span&gt; &lt;span class="o"&gt;:=&lt;/span&gt; &lt;span class="n"&gt;strconv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Atoi&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;row&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+        &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;age&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Sum of ages:&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;Python&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nv"&gt;sum_ages&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="nv"&gt;with&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;open&lt;/span&gt;&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;data.csv&amp;quot;&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;as&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;:&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;line&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;:&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="nv"&gt;_&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;age&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;line&lt;/span&gt;.&lt;span class="nv"&gt;strip&lt;/span&gt;&lt;span class="ss"&gt;()&lt;/span&gt;.&lt;span class="nv"&gt;split&lt;/span&gt;&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&amp;quot;&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="nv"&gt;sum_ages&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;int&lt;/span&gt;&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;age&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="nv"&gt;print&lt;/span&gt;&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Sum of ages:&amp;quot;&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;sum_ages&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;JavaScript&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;fs&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fs&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="n"&gt;fs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readFile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;data.csv&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;utf8&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;err&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;lines&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;trim&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;of&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;lines&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;parseInt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="n"&gt;console&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Sum of ages:&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h4&gt;Java&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.io.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.nio.file.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Main&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;public&lt;/span&gt; &lt;span class="n"&gt;static&lt;/span&gt; &lt;span class="n"&gt;void&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nb"&gt;int&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Files&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readAllLines&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Paths&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;data.csv&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;parts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;Integer&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parseInt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Sum of ages: &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Diante dos exemplos apresentados que buscam reproduzir o mesmo comportamento entre as linguagens, é possível perceber que Go, embora verbosa, não apresenta uma diferença significativa. Isso nos leva a uma reflexão importante: &lt;strong&gt;será que sintaxe é realmente o fator mais determinante no desenvolvimento de software&lt;/strong&gt;? Ou uma linguagem que une eficiência com simplicidade tem mais valor?&lt;/p&gt;
+&lt;p&gt;A resposta, como quase sempre em engenharia de software, é: &lt;strong&gt;depende&lt;/strong&gt;. Esta análise é simplificada e não cobre todas as nuances envolvidas na escolha de uma linguagem. Todavia, a reflexão é válida. E a partir dela, uma prova de conceito pode muito bem ser aplicada.&lt;/p&gt;
+&lt;p&gt;Quando afirmo que o fato de Go não ser tão amigável não deveria ser um problema, estou me referindo ao dilema constante de equilibrar prioridades. O que é mais importante dentro de um contexto? Familiaridade com a linguagem? Até que ponto? Um incômodo na hora de tratar exceções? Tempo de inicialização? Qual é o tempo aceitável?&lt;/p&gt;
+&lt;p&gt;Essas são reflexões que fazem parte do dia a dia de um engenheiro de software. E, complementando o título deste artigo, &lt;strong&gt;Go não foi feito para ser bonito. Foi feito para ser confiável, durável e simples&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Até a próxima :)&lt;/p&gt;
+&lt;h4&gt;Referências&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://go.dev/wiki/Benchmarks"&gt;https://go.dev/wiki/Benchmarks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://dev.to/nigelsilonero/how-does-golang-handle-concurrency-better-than-other-languages-2e51"&gt;https://dev.to/nigelsilonero/how-does-golang-handle-concurrency-better-than-other-languages-2e51?utm_source=chatgpt.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go.dev/doc/faq"&gt;https://go.dev/doc/faq&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go.dev/talks/2012/splash.article"&gt;https://go.dev/talks/2012/splash.article&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="misc"></category><category term="golang"></category><category term="backend"></category><category term="programação"></category></entry><entry><title>[PT] Entendendo o package Context em Go</title><link href="https://diegofernando.dev/entendendo-o-package-context-em-go.html" rel="alternate"></link><published>2022-10-09T10:05:00-03:00</published><updated>2022-10-09T23:18:56-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2022-10-09:/entendendo-o-package-context-em-go.html</id><summary type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Nos últimos meses tenho voltado meus esforços para o estudo da linguagem Go. Confesso que não é meu primeiro contato com a linguagem – lá em 2017 tive a oportunidade de apresentar um minicurso introdutório em um simpósio universitário. Apesar de não ser uma novidade, precisei revisitar alguns conceitos. O pacote &lt;strong&gt;context.Context&lt;/strong&gt; é um deles. Então, let's go!&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Dwight Schrute mandando um &amp;quot;let's go!&amp;quot;" src="/assets/images/lets-go-dwight-schrute.gif"&gt;&lt;/p&gt;
 &lt;p&gt;Olhando para a &lt;a href="https://pkg.go.dev/context"&gt;documentação oficial&lt;/a&gt;, temos o seguinte trecho:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -188,7 +919,7 @@ Stopping code execution…
 &lt;li&gt;&lt;a href="https://www.digitalocean.com/community/tutorials/how-to-use-contexts-in-go"&gt;https://www.digitalocean.com/community/tutorials/how-to-use-contexts-in-go&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://p.agnihotry.com/post/understanding_the_context_package_in_golang/"&gt;https://p.agnihotry.com/post/understanding_the_context_package_in_golang/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=eGYZPUoH78c"&gt;https://www.youtube.com/watch?v=eGYZPUoH78c&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="misc"></category><category term="golang"></category><category term="context"></category><category term="programação"></category></entry><entry><title>[PT] Construindo uma ferramenta para criação de notas rápidas</title><link href="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html" rel="alternate"></link><published>2021-01-20T01:05:00-03:00</published><updated>2021-08-02T03:46:05-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2021-01-20:/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html</id><summary type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de colar essa informação em uma ferramenta externa.&lt;/p&gt;
+&lt;/ul&gt;</content><category term="misc"></category><category term="golang"></category><category term="context"></category><category term="programação"></category></entry><entry><title>[PT] Construindo uma ferramenta para criação de notas rápidas</title><link href="https://diegofernando.dev/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html" rel="alternate"></link><published>2021-01-20T01:05:00-03:00</published><updated>2021-08-02T04:02:57-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2021-01-20:/construindo-uma-ferramenta-para-criacao-de-notas-rapidas.html</id><summary type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Em um ambiente de desenvolvimento de software, as pessoas que compõem um time/projeto/&lt;em&gt;squad&lt;/em&gt; tendem a compartilhar dados entre si a todo momento. &lt;em&gt;Logs&lt;/em&gt; de aplicação, trechos de código e macetes muitas vezes extrapolam o limite de caracteres da ferramenta de comunicação, fazendo com que surja a necessidade de colar essa informação em uma ferramenta externa.&lt;/p&gt;
 &lt;p&gt;Na empresa onde trabalho, por exemplo, usamos com frequência o site &lt;strong&gt;&lt;a href="http://dontpad.com/"&gt;dontpad.com&lt;/a&gt;&lt;/strong&gt;. &lt;strong&gt;Dontpad&lt;/strong&gt; é uma aplicação que possibilita a criação rápida de notas a partir de um recurso definido pelo usuário. Uma sequência de caracteres qualquer após a URL &lt;code&gt;http://dontpad.com&lt;/code&gt;, já torna um identificador para o conteúdo do seu texto. O Dontpad é extramente rápido e eficiente, porém observei alguns contras:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Nenhuma privacidade e segurança. Qualquer pessoa que tiver a URL, da sua nota, pode visualizar o conteúdo.&lt;/li&gt;
@@ -244,7 +975,7 @@ Stopping code execution…
 
 &lt;p&gt;As telas foram feitas com o framework CSS &lt;a href="https://bulma.io/"&gt;Bulma&lt;/a&gt;. A intenção foi deixá-las o mais simples possível, sem truques nem efeitos. Mesmo focando no básico, sentia falta do "modo escuro" que não existia no Dontpad. Não é tão simples fazer isso com o Bulma, mas encontrei uma extensão que facilitou o desenvolvimento desse recurso: &lt;a href="https://github.com/jloh/bulma-prefers-dark"&gt;bulma-prefers-dark&lt;/a&gt;. Ao final da construção, a navegação ficou assim:&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Daptnod modelagem" src="/assets/images/tuor-daptnod.gif"&gt;&lt;em&gt;Tuor pelo Daptnod.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;Apesar de ser algo simples, este foi um dos projetos que mais gostei de fazer por ser muito útil. O tempo de desenvolvimento da aplicação foi de aproximadamente duas semanas. Oficializei uma primeira versão da ferramenta e a batizei como &lt;strong&gt;DAPTNOD&lt;/strong&gt;. O projeto está no GitHub através deste &lt;a href="https://github.com/diegofsousa/daptnod"&gt;link&lt;/a&gt;. Também subi uma versão de produção que pode ser acessada em &lt;a href="https://daptnod.herokuapp.com/"&gt;https://daptnod.herokuapp.com/&lt;/a&gt;.&lt;/p&gt;</content><category term="misc"></category><category term="ferramental"></category><category term="python"></category><category term="recriação"></category><category term="dontpad"></category></entry><entry><title>[PT] Padrão Abstract Factory aplicado à diferentes implementações de redimensionamento de imagens</title><link href="https://diegofernando.dev/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html" rel="alternate"></link><published>2020-09-20T18:42:00-03:00</published><updated>2021-08-02T00:41:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-09-20:/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html</id><summary type="html">&lt;p&gt;O &lt;strong&gt;Abstract Factory&lt;/strong&gt; é um importante padrão de projeto do tipo criacional que permite criar famílias de objetos relacionados sem precisar especificar as classes concretas. Este padrão é o primeiro descrito no livro Design Patterns do &lt;strong&gt;GoF&lt;/strong&gt;. Conhecer a intuito por trás da criação desses padrões é bastante válido para …&lt;/p&gt;</summary><content type="html">&lt;p&gt;O &lt;strong&gt;Abstract Factory&lt;/strong&gt; é um importante padrão de projeto do tipo criacional que permite criar famílias de objetos relacionados sem precisar especificar as classes concretas. Este padrão é o primeiro descrito no livro Design Patterns do &lt;strong&gt;GoF&lt;/strong&gt;. Conhecer a intuito por trás da criação desses padrões é bastante válido para entender os designs de software mais atuais.&lt;/p&gt;
+&lt;p&gt;Apesar de ser algo simples, este foi um dos projetos que mais gostei de fazer por ser muito útil. O tempo de desenvolvimento da aplicação foi de aproximadamente duas semanas. Oficializei uma primeira versão da ferramenta e a batizei como &lt;strong&gt;DAPTNOD&lt;/strong&gt;. O projeto está no GitHub através deste &lt;a href="https://github.com/diegofsousa/daptnod"&gt;link&lt;/a&gt;. Também subi uma versão de produção que pode ser acessada em &lt;a href="https://daptnod.herokuapp.com/"&gt;https://daptnod.herokuapp.com/&lt;/a&gt;.&lt;/p&gt;</content><category term="misc"></category><category term="ferramental"></category><category term="python"></category><category term="recriação"></category><category term="dontpad"></category></entry><entry><title>[PT] Padrão Abstract Factory aplicado à diferentes implementações de redimensionamento de imagens</title><link href="https://diegofernando.dev/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html" rel="alternate"></link><published>2020-09-20T18:42:00-03:00</published><updated>2020-09-21T01:16:53-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-09-20:/padrao-abstract-factory-aplicado-a-redimensionamento-de-imagens.html</id><summary type="html">&lt;p&gt;O &lt;strong&gt;Abstract Factory&lt;/strong&gt; é um importante padrão de projeto do tipo criacional que permite criar famílias de objetos relacionados sem precisar especificar as classes concretas. Este padrão é o primeiro descrito no livro Design Patterns do &lt;strong&gt;GoF&lt;/strong&gt;. Conhecer a intuito por trás da criação desses padrões é bastante válido para …&lt;/p&gt;</summary><content type="html">&lt;p&gt;O &lt;strong&gt;Abstract Factory&lt;/strong&gt; é um importante padrão de projeto do tipo criacional que permite criar famílias de objetos relacionados sem precisar especificar as classes concretas. Este padrão é o primeiro descrito no livro Design Patterns do &lt;strong&gt;GoF&lt;/strong&gt;. Conhecer a intuito por trás da criação desses padrões é bastante válido para entender os designs de software mais atuais.&lt;/p&gt;
 &lt;p&gt;Os objetos ou produtos do problema de design que iremos abordar neste estudo, são três tipos de redimensionamento de imagens. Nas duas primeiras, usaremos a biblioteca nativa &lt;strong&gt;AWT&lt;/strong&gt; com sua implementação mais comum. Já na última, usaremos uma abordagem com &lt;code&gt;getScaledInstance&lt;/code&gt;, da mesma biblioteca. A seguir, um resumo:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;ImageGraphics2D&lt;/strong&gt;: Uma implementação mais comum usando recursos do AWT. Coletamos uma imagem de entrada, e geramos uma imagem de saída.&lt;/li&gt;
@@ -285,7 +1016,7 @@ Stopping code execution…
 &lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;Essa abordagem tem alguns prós e contras. O benefício de implementar essa estrutura é a certeza que todos os produtos que vêm da fábrica estão relacionados e são compatíveis entre si. Com o baixo acoplamento, fica fácil introduzir novas variações no produto sem interferir no código do cliente tornando a manutenção facilitada. O ponto ruim da abordagem é a quantidade de código incluindo novas classes e interfaces, o que pode confundir o desenvolvedor no início.&lt;/p&gt;</content><category term="misc"></category><category term="design pattern"></category><category term="java"></category><category term="gof"></category><category term="padrão"></category><category term="abstract fatory"></category></entry><entry><title>[PT] Podcast - Trabalho colaborativo e Git</title><link href="https://diegofernando.dev/podcast-trabalho-colaborativo-e-git.html" rel="alternate"></link><published>2020-09-20T18:42:00-03:00</published><updated>2021-08-02T00:41:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-09-20:/podcast-trabalho-colaborativo-e-git.html</id><summary type="html">&lt;p&gt;Nos últimos dias fui convidado para uma conversa sobre ferramentas de &lt;strong&gt;trabalho colaborativo&lt;/strong&gt;, em 
+&lt;p&gt;Essa abordagem tem alguns prós e contras. O benefício de implementar essa estrutura é a certeza que todos os produtos que vêm da fábrica estão relacionados e são compatíveis entre si. Com o baixo acoplamento, fica fácil introduzir novas variações no produto sem interferir no código do cliente tornando a manutenção facilitada. O ponto ruim da abordagem é a quantidade de código incluindo novas classes e interfaces, o que pode confundir o desenvolvedor no início.&lt;/p&gt;</content><category term="misc"></category><category term="design pattern"></category><category term="java"></category><category term="gof"></category><category term="padrão"></category><category term="abstract fatory"></category></entry><entry><title>[PT] Podcast - Trabalho colaborativo e Git</title><link href="https://diegofernando.dev/podcast-trabalho-colaborativo-e-git.html" rel="alternate"></link><published>2020-09-20T18:42:00-03:00</published><updated>2020-09-21T01:16:53-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-09-20:/podcast-trabalho-colaborativo-e-git.html</id><summary type="html">&lt;p&gt;Nos últimos dias fui convidado para uma conversa sobre ferramentas de &lt;strong&gt;trabalho colaborativo&lt;/strong&gt;, em 
 especial, o &lt;strong&gt;Git&lt;/strong&gt;. O bate-papo sobre o tema envolveu, além de mim, o &lt;a href="https://www.linkedin.com/in/ACoAACYW_j0B2t22g9xa_rx9_mMXW5CsfCw7A9c?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3B2EjYPz%2FcRv2JG0N8UcP6uA%3D%3D"&gt;Davi Luis&lt;/a&gt; (analista de sistemas da Locaweb) e o &lt;a href="https://www.linkedin.com/in/ACoAAAlEAeIBHNKFP36CMmao78tv2CJCXRWOz54?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3B2EjYPz%2FcRv2JG0N8UcP6uA%3D%3D"&gt;Jesiel Viana&lt;/a&gt; (professor do IFPI, campus Picos). A conversa foi ao ar pelo projeto …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Nos últimos dias fui convidado para uma conversa sobre ferramentas de &lt;strong&gt;trabalho colaborativo&lt;/strong&gt;, em 
 especial, o &lt;strong&gt;Git&lt;/strong&gt;. O bate-papo sobre o tema envolveu, além de mim, o &lt;a href="https://www.linkedin.com/in/ACoAACYW_j0B2t22g9xa_rx9_mMXW5CsfCw7A9c?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3B2EjYPz%2FcRv2JG0N8UcP6uA%3D%3D"&gt;Davi Luis&lt;/a&gt; (analista de sistemas da Locaweb) e o &lt;a href="https://www.linkedin.com/in/ACoAAAlEAeIBHNKFP36CMmao78tv2CJCXRWOz54?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3B2EjYPz%2FcRv2JG0N8UcP6uA%3D%3D"&gt;Jesiel Viana&lt;/a&gt; (professor do IFPI, campus Picos). A conversa foi ao ar pelo projeto &lt;strong&gt;B-a-Bá do Dev&lt;/strong&gt;, uma iniciativa liderada pelo professor Jesiel em formato de podcast que aborda temas relacionados ao desenvolvimento de software. O intuito principal é desmistificar os termos do desenvolvimento web para iniciantes da área.&lt;/p&gt;
 &lt;iframe src="https://open.spotify.com/embed-podcast/episode/28lVsU2OqtkdwmijazZdYt" width="100%" height="232" frameborder="0" allowtransparency="true" allow="encrypted-media"&gt;&lt;/iframe&gt;
@@ -302,14 +1033,14 @@ especial, o &lt;strong&gt;Git&lt;/strong&gt;. O bate-papo sobre o tema envolveu,
 &lt;li&gt;[40:15] - &lt;strong&gt;Branchs&lt;/strong&gt; e &lt;strong&gt;tags&lt;/strong&gt;&lt;/li&gt;
 &lt;li&gt;[42:20] - Recomendações para aprender Git&lt;/li&gt;
 &lt;li&gt;[49:50] - Considerações finais&lt;/li&gt;
-&lt;/ul&gt;</content><category term="misc"></category><category term="trabalho colaborativo"></category><category term="git"></category><category term="github"></category><category term="spotify"></category><category term="podcast"></category></entry><entry><title>[PT] Podcast aula - Scala e microserviços</title><link href="https://diegofernando.dev/podcast-aula-scala-microservicos.html" rel="alternate"></link><published>2020-05-24T01:47:00-03:00</published><updated>2021-08-02T00:41:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-05-24:/podcast-aula-scala-microservicos.html</id><summary type="html">&lt;p&gt;Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é ficar em casa para que o cenário não se agrave ainda mais. Em virtude da circunstância, os amigos do &lt;strong&gt;DevCapivara&lt;/strong&gt; tiveram a brilhante ideia de fazer um podcast …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é ficar em casa para que o cenário não se agrave ainda mais. Em virtude da circunstância, os amigos do &lt;strong&gt;DevCapivara&lt;/strong&gt; tiveram a brilhante ideia de fazer um podcast/aula com bastante conteúdo legal durante duas semanas.&lt;/p&gt;
+&lt;/ul&gt;</content><category term="misc"></category><category term="trabalho colaborativo"></category><category term="git"></category><category term="github"></category><category term="spotify"></category><category term="podcast"></category></entry><entry><title>[PT] Podcast aula - Scala e microserviços</title><link href="https://diegofernando.dev/podcast-aula-scala-microservicos.html" rel="alternate"></link><published>2020-05-24T01:47:00-03:00</published><updated>2020-09-21T01:16:53-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-05-24:/podcast-aula-scala-microservicos.html</id><summary type="html">&lt;p&gt;Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é ficar em casa para que o cenário não se agrave ainda mais. Em virtude da circunstância, os amigos do &lt;strong&gt;DevCapivara&lt;/strong&gt; tiveram a brilhante ideia de fazer um podcast …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Atualmente o mundo passa por uma pandemia provocada pelo novo coronavírus, ou covid-19. Diante da situação, o melhor que podemos fazer é ficar em casa para que o cenário não se agrave ainda mais. Em virtude da circunstância, os amigos do &lt;strong&gt;DevCapivara&lt;/strong&gt; tiveram a brilhante ideia de fazer um podcast/aula com bastante conteúdo legal durante duas semanas.&lt;/p&gt;
 &lt;p&gt;Entre os dias 22 de março e 04 de abril o podcast abordou conteúdos sobre &lt;strong&gt;NodeJS&lt;/strong&gt;, &lt;strong&gt;microserviços&lt;/strong&gt;, &lt;strong&gt;Scala&lt;/strong&gt;, &lt;strong&gt;Clojure&lt;/strong&gt;, &lt;strong&gt;testes de software&lt;/strong&gt;, &lt;strong&gt;programação funcional&lt;/strong&gt;, &lt;strong&gt;Deep Learning&lt;/strong&gt;, &lt;strong&gt;Django Rest Framework&lt;/strong&gt;, &lt;strong&gt;CI/CD&lt;/strong&gt;, &lt;strong&gt;React Native&lt;/strong&gt;, &lt;strong&gt;sistemas de autenticação&lt;/strong&gt;, &lt;strong&gt;Unity e Blender&lt;/strong&gt;, &lt;strong&gt;mercado/inovação&lt;/strong&gt; e &lt;strong&gt;Sinatra&lt;/strong&gt;. Todos os detalhes estão no &lt;a href="https://devcapivara.com.br"&gt;site&lt;/a&gt; do projeto.&lt;/p&gt;
 &lt;p&gt;No meu podcast/aula falei um pouco sobre a linguagem &lt;strong&gt;Scala&lt;/strong&gt; e seu uso no mundo web. Também fizemos um bate-papo bastante contribuinte sobre microserviços. Trouxe dois exemplos de aplicação usando os frameworks &lt;a href="https://www.playframework.com/"&gt;Play&lt;/a&gt; e &lt;a href="https://www.lagomframework.com/"&gt;Lagom&lt;/a&gt;. Este último com várias "baterias embutidas" para criação de microserviços. Confira a seguir, na íntegra:&lt;/p&gt;
 &lt;style&gt;.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }&lt;/style&gt;
 &lt;div class='embed-container'&gt;&lt;iframe src='https://www.youtube.com/embed/SR_DFsclZkw' frameborder='0' allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;
 &lt;p&gt;&lt;em&gt;Aula na íntegra&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Banner de divulgação" src="/assets/images/scala-podcast.jpeg"&gt;&lt;em&gt;Banner de divulgação.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;O repositório com o código da aula está no &lt;strong&gt;Github&lt;/strong&gt;, neste &lt;a href="https://github.com/diegofsousa/devcapivara-microservice"&gt;link&lt;/a&gt;. Agredeço a oportunidade ao pessoal do DevCapivara e parabenizo pela atitude. Já esperando o próximo evento :).&lt;/p&gt;</content><category term="misc"></category><category term="programação"></category><category term="scala"></category><category term="microserviços"></category><category term="lagom"></category><category term="aula"></category><category term="podcast"></category></entry><entry><title>[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu</title><link href="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" rel="alternate"></link><published>2020-05-16T23:54:00-03:00</published><updated>2021-08-02T01:49:08-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-05-16:/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html</id><summary type="html">&lt;p&gt;Uma das mais famosas IDE's (&lt;em&gt;Integrated Development Environment&lt;/em&gt;) para a criação de programas em Java é o &lt;strong&gt;Eclipse&lt;/strong&gt;. O seu uso simples torna o desenvolvimento bastante produtivo. Já o &lt;strong&gt;Spring Tools 4&lt;/strong&gt; (ou simplemente &lt;strong&gt;STS&lt;/strong&gt;) é basicamente um &lt;em&gt;plugin&lt;/em&gt; criado exclusivamente para o framework &lt;em&gt;web&lt;/em&gt; Java &lt;strong&gt;Spring&lt;/strong&gt; que tem suporte …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Uma das mais famosas IDE's (&lt;em&gt;Integrated Development Environment&lt;/em&gt;) para a criação de programas em Java é o &lt;strong&gt;Eclipse&lt;/strong&gt;. O seu uso simples torna o desenvolvimento bastante produtivo. Já o &lt;strong&gt;Spring Tools 4&lt;/strong&gt; (ou simplemente &lt;strong&gt;STS&lt;/strong&gt;) é basicamente um &lt;em&gt;plugin&lt;/em&gt; criado exclusivamente para o framework &lt;em&gt;web&lt;/em&gt; Java &lt;strong&gt;Spring&lt;/strong&gt; que tem suporte para o ambientes &lt;strong&gt;Eclipse&lt;/strong&gt;, &lt;strong&gt;Visual Studio Code&lt;/strong&gt; e &lt;strong&gt;Theia&lt;/strong&gt;. &lt;/p&gt;
+&lt;p&gt;O repositório com o código da aula está no &lt;strong&gt;Github&lt;/strong&gt;, neste &lt;a href="https://github.com/diegofsousa/devcapivara-microservice"&gt;link&lt;/a&gt;. Agredeço a oportunidade ao pessoal do DevCapivara e parabenizo pela atitude. Já esperando o próximo evento :).&lt;/p&gt;</content><category term="misc"></category><category term="programação"></category><category term="scala"></category><category term="microserviços"></category><category term="lagom"></category><category term="aula"></category><category term="podcast"></category></entry><entry><title>[PT] Adicionando Eclipse Spring Tools 4 ao lançador do Ubuntu</title><link href="https://diegofernando.dev/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html" rel="alternate"></link><published>2020-05-16T23:54:00-03:00</published><updated>2020-05-17T02:49:24-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2020-05-16:/adicionando-eclipse-spring-tools-4-lancador-ubuntu.html</id><summary type="html">&lt;p&gt;Uma das mais famosas IDE's (&lt;em&gt;Integrated Development Environment&lt;/em&gt;) para a criação de programas em Java é o &lt;strong&gt;Eclipse&lt;/strong&gt;. O seu uso simples torna o desenvolvimento bastante produtivo. Já o &lt;strong&gt;Spring Tools 4&lt;/strong&gt; (ou simplemente &lt;strong&gt;STS&lt;/strong&gt;) é basicamente um &lt;em&gt;plugin&lt;/em&gt; criado exclusivamente para o framework &lt;em&gt;web&lt;/em&gt; Java &lt;strong&gt;Spring&lt;/strong&gt; que tem suporte …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Uma das mais famosas IDE's (&lt;em&gt;Integrated Development Environment&lt;/em&gt;) para a criação de programas em Java é o &lt;strong&gt;Eclipse&lt;/strong&gt;. O seu uso simples torna o desenvolvimento bastante produtivo. Já o &lt;strong&gt;Spring Tools 4&lt;/strong&gt; (ou simplemente &lt;strong&gt;STS&lt;/strong&gt;) é basicamente um &lt;em&gt;plugin&lt;/em&gt; criado exclusivamente para o framework &lt;em&gt;web&lt;/em&gt; Java &lt;strong&gt;Spring&lt;/strong&gt; que tem suporte para o ambientes &lt;strong&gt;Eclipse&lt;/strong&gt;, &lt;strong&gt;Visual Studio Code&lt;/strong&gt; e &lt;strong&gt;Theia&lt;/strong&gt;. &lt;/p&gt;
 &lt;p&gt;Mesmo sendo um &lt;em&gt;plugin&lt;/em&gt;, ao efetuar o &lt;em&gt;download&lt;/em&gt; do STS, estamos também baixando o Eclipse, pois o STS funciona como uma extensão dessa IDE. A maneira mais básica de começar a utilizar o STS no ambiente Linux é baixá-la diretamente do &lt;a href="https://spring.io/tools"&gt;site oficial&lt;/a&gt; e rodar o arquivo executável. Veja o GIF a seguir.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Inicialização manual STS" src="/assets/images/sts-manual.gif"&gt;&lt;em&gt;Inicialização manual do STS.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Essa tarefa começa a ficar incômoda quando toda vez temos que abrir um diretório e ter que rodar. Os perfeccionistas (como eu) acabam achando essa uma abordagem ruim. Nos próximos passos iremos ver como inserir o &lt;em&gt;software&lt;/em&gt; no lançador (&lt;em&gt;launch&lt;/em&gt;) e ainda como configurar para deixá-lo nos favoritos.&lt;/p&gt;
@@ -354,7 +1085,7 @@ especial, o &lt;strong&gt;Git&lt;/strong&gt;. O bate-papo sobre o tema envolveu,
 
 &lt;p&gt;Ao fazer isso, adicione novamente o ícone aos favoritos e confirme se funcionou. O comportamento deve ser similar ao do exemplo abaixo:&lt;/p&gt;
 &lt;p&gt;&lt;img alt="STS disponível no lançador" src="/assets/images/sts-on-launch.gif"&gt;&lt;em&gt;STS disponível no lançador.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;Comente se funcionou (ou não) aqui em baixo. :)&lt;/p&gt;</content><category term="misc"></category><category term="programação"></category><category term="java"></category><category term="spring"></category><category term="ide"></category><category term="eclipse"></category></entry><entry><title>[PT] Configurando rotas estáticas em uma rede</title><link href="https://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html" rel="alternate"></link><published>2019-09-26T00:45:00-03:00</published><updated>2021-08-02T00:41:02-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2019-09-26:/configurando-rotas-estaticas-em-uma-rede.html</id><summary type="html">&lt;p&gt;Imagine o seguinte cenário: temos uma tarefas de criar uma comunicação entre duas redes diferentes. Em cada rede existe um roteador na borda e, claramente, devemos implantar um outro roteador que possa interconectar essas duas redes. As redes são:&lt;/p&gt;
+&lt;p&gt;Comente se funcionou (ou não) aqui em baixo. :)&lt;/p&gt;</content><category term="misc"></category><category term="programação"></category><category term="java"></category><category term="spring"></category><category term="ide"></category><category term="eclipse"></category></entry><entry><title>[PT] Configurando rotas estáticas em uma rede</title><link href="https://diegofernando.dev/configurando-rotas-estaticas-em-uma-rede.html" rel="alternate"></link><published>2019-09-26T00:45:00-03:00</published><updated>2020-05-11T01:14:22-03:00</updated><author><name>diego</name></author><id>tag:diegofernando.dev,2019-09-26:/configurando-rotas-estaticas-em-uma-rede.html</id><summary type="html">&lt;p&gt;Imagine o seguinte cenário: temos uma tarefas de criar uma comunicação entre duas redes diferentes. Em cada rede existe um roteador na borda e, claramente, devemos implantar um outro roteador que possa interconectar essas duas redes. As redes são:&lt;/p&gt;
 &lt;p&gt;router0: 10.10.0.0 /16 /
 router2: 10.20.0.0 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Imagine o seguinte cenário: temos uma tarefas de criar uma comunicação entre duas redes diferentes. Em cada rede existe um roteador na borda e, claramente, devemos implantar um outro roteador que possa interconectar essas duas redes. As redes são:&lt;/p&gt;
 &lt;p&gt;router0: 10.10.0.0 /16 /
