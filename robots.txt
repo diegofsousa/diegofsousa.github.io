@@ -1,0 +1,33 @@
+Sitemap: https://diegofernando.dev/sitemap.xml
+Sitemap: https://diegofernando.dev/en/sitemap.xml
+
+User-agent: *
+Allow: /
+
+# AI crawlers / assistants — explicitly allowed rather than left to default.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /

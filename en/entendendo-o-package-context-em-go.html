@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+  <title>Understanding the Context package in Go</title>
+
+  <meta name="description" content="I'm a technology enthusiast and programmer" />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="https://diegofernando.dev/en/entendendo-o-package-context-em-go.html" rel="canonical" />
+      <link rel="alternate" hreflang="pt-br" href="https://diegofernando.dev/" />
+      <link rel="alternate" hreflang="en" href="https://diegofernando.dev/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://diegofernando.dev/" />
+
+  <!-- Feed -->
+        <link href="https://diegofernando.dev/en/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Full Atom Feed" />
+          <link href="https://diegofernando.dev/en/feeds/{slug}.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Categories Atom Feed" />
+
+  <link href="https://diegofernando.dev/en/../theme/css/style.css" type="text/css" rel="stylesheet" />
+
+
+
+
+    <meta name="description" content="Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back...">
+
+    <meta name="author" content="diego">
+
+    <meta name="tags" content="golang">
+    <meta name="tags" content="context">
+    <meta name="tags" content="programming">
+
+
+
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Diego Fernando"/>
+<meta property="og:title" content="Understanding the Context package in Go"/>
+<meta property="og:description" content="Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://diegofernando.dev/en/entendendo-o-package-context-em-go.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2022-10-09 10:05:00-03:00"/>
+<meta property="article:modified_time" content="2026-09-13 17:42:34-03:00"/>
+<meta property="article:author" content="https://diegofernando.dev/en/author/diego">
+  <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
+<meta property="article:section" content="misc"/>
+<meta property="article:tag" content="golang"/>
+<meta property="article:tag" content="context"/>
+<meta property="article:tag" content="programming"/>
+<meta property="og:image" content="https://diegofernando.dev/assets/images/gophers_working.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@arulrajnet">
+    <meta name="twitter:title" content="Understanding the Context package in Go">
+    <meta name="twitter:url" content="https://diegofernando.dev/en/entendendo-o-package-context-em-go.html">
+
+        <meta name="twitter:image:src" content="https://diegofernando.dev/assets/images/gophers_working.jpg">
+
+      <meta name="twitter:description" content="Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back...">
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "Understanding the Context package in Go",
+  "headline": "Understanding the Context package in Go",
+  "datePublished": "2022-10-09 10:05:00-03:00",
+  "dateModified": "2026-09-13 17:42:34-03:00",
+  "author": {
+    "@type": "Person",
+    "name": "Diego Fernando",
+    "url": "https://diegofernando.dev/en/author/diego"
+  },
+  "image": "https://diegofernando.dev/assets/images/gophers_working.jpg",
+  "url": "https://diegofernando.dev/en/entendendo-o-package-context-em-go.html",
+  "description": "Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back..."
+}
+</script></head>
+<body>
+
+  <header class="site">
+    <div class="brand">
+      <h1><a href="https://diegofernando.dev/en/">Diego Fernando</a></h1>
+<p>I'm a technology enthusiast and programmer</p>    </div>
+<nav class="site">
+  <a href="https://diegofernando.dev/en/">home</a>
+  <a href="https://diegofernando.dev/en/archives.html">archives</a>
+  <a href="https://diegofernando.dev/en/tags.html">tags</a>
+    <a href="https://diegofernando.dev/en/pages/about/">about</a>
+    <a href="https://diegofernando.dev/en/feeds/all.atom.xml" class="rss">⟁ rss</a>
+      <a href="https://diegofernando.dev/" class="lang-switch" hreflang="pt-br">em português</a>
+  <button type="button" id="search-toggle" class="search-toggle" aria-haspopup="dialog" aria-controls="search-overlay">⌕ search</button>
+</nav>  </header>
+
+  <div class="search-overlay" id="search-overlay" hidden>
+    <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search posts...">
+      <div class="search-field">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input type="text" id="search-input" placeholder="Search posts..." autocomplete="off" aria-label="Search posts...">
+        <button type="button" id="search-close" aria-label="Close search">✕</button>
+      </div>
+      <div id="search-results" class="search-results" aria-live="polite"></div>
+    </div>
+  </div>
+
+<article class="post" data-pagefind-body>
+  <p class="post-crumb"><a href="https://diegofernando.dev/en/">Posts</a> / Understanding the Context package in Go</p>
+  <h2 class="post-title" data-pagefind-meta="title">Understanding the Context package in Go</h2>
+  <div class="post-meta">
+      <span><b><a href="https://diegofernando.dev/en/author/diego">Diego Fernando</a></b></span>
+    <span><time datetime="Oct 09, 2022">Oct 09, 2022</time></span>
+<span>misc</span><span>updated on Sep 13, 2026</span>  </div>
+
+  <div class="post-content">
+    <p>Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back in 2017 I had the chance to run an introductory workshop at a university symposium. Even though it isn't new to me, I had to revisit a few concepts. The <strong>context.Context</strong> package is one of them. So, let's go!</p>
+<p><img alt="Dwight Schrute saying &quot;let's go!&quot;" src="/assets/images/lets-go-dwight-schrute.gif"></p>
+<p>Looking at the <a href="https://pkg.go.dev/context">official documentation</a>, we find the following excerpt:</p>
+<blockquote>
+<p>“<strong><em>Package context defines the Context type, which carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes</em></strong>”.</p>
+</blockquote>
+<p>In other words, Context lets you create deadlines and execution-scoped values for the processes it's shared with. That magic happens because Context uses <em>channels</em> to send signals to processes, and those processes, in turn, listen for these instructions to control stop actions.</p>
+<p>A classic example of its use is when making requests to external APIs, where we want to cap how long we wait for a response. There are other situations where it comes in handy too, such as controlling how long an instruction is allowed to run, or setting a deadline for a database <em>query</em>, for example. In short, there are plenty of possibilities.</p>
+<h3 id="starting-a-context">Starting a Context<a class="headerlink" href="#starting-a-context" title="Permanent link to this section">#</a></h3>
+<p>Before detailing the types of Context, it's important to understand how it's initialized. <strong>Every Context has to be initialized empty at some point in its lifecycle before it can be used</strong>. The Go documentation itself discourages passing <code>nil</code> as a parameter in situations that require one. There are two ways to initialize it — <strong>context.Background()</strong> and <strong>context.TODO()</strong>:</p>
+<h4 id="contextbackground">context.Background()<a class="headerlink" href="#contextbackground" title="Permanent link to this section">#</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p><code>context.Background()</code> returns a non-nil, empty Context. <strong>It's normally used by the project's main function or <em>entrypoint</em></strong>.</p>
+<h4 id="contexttodo">context.TODO()<a class="headerlink" href="#contexttodo" title="Permanent link to this section">#</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">TODO</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Just like its predecessor, <code>context.TODO()</code> also returns a non-nil, empty Context. The main difference is that <strong>it's used when it isn't clear yet which context should be used, or when one isn't available yet</strong>.</p>
+<h3 id="types-of-context">Types of Context<a class="headerlink" href="#types-of-context" title="Permanent link to this section">#</a></h3>
+<p>There are basically <strong>three types</strong> of Context:</p>
+<ul>
+<li>Cancellation Signals</li>
+<li>Deadline</li>
+<li>Request-scoped values</li>
+</ul>
+<h4 id="cancellation-signals">Cancellation Signals<a class="headerlink" href="#cancellation-signals" title="Permanent link to this section">#</a></h4>
+<p>The <strong>Cancellation Signals</strong> type defines a Context whose execution can be interrupted through a command. In this case, the instruction follows its normal flow until, at some point in the code, it's told to stop. Here's an example implementation:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;time&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithCancel</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">executeFunction</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">cancel</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">executeFunction</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">select</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">():</span><span class="w"></span>
+<span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Stopping code execution...&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Running at&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">())</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Before explaining the <code>main()</code> function, let's first understand <code>executeFunction()</code>, since it's the one that receives instructions from the Context. Once it receives a <code>context.Context</code> parameter, it runs an infinite <em>loop</em> where, as soon as it receives the stop signal from the context, it prints “<strong>Stopping code execution...</strong>” and ends its execution with an explicit <code>return</code>. Otherwise, it keeps running and printing “<strong>Running at [time]</strong>”. The <code>select</code> statement works like a kind of <em>switch-case</em>, but applied to signals coming from <strong><em>channels</em></strong>, which is the case with Contexts. As we can see, the stop signal in the code is given by the <code>ctx.Done()</code> instruction.</p>
+<p>Back in the <code>main()</code> function, the first thing we do is create a Context with <code>context.Background()</code>. After that, we use the <code>context.WithCancel()</code> function, passing in our base context. It gives us back a new context and a second value we call <code>cancel</code>. That's essential for stopping the instructions tied to this context. While we run <code>executeFunction()</code> asynchronously, we wait three seconds and then force its cancellation with the <code>cancel()</code> instruction — yes, that same one we got from the context :) .</p>
+<p>The result of running this will look something like the <em>log</em> below:</p>
+<div class="highlight"><pre><span></span><code>Running at 2022-10-09 16:15:46.80042576 -0300 -03 m=+1.000598497
+Running at 2022-10-09 16:15:47.801454038 -0300 -03 m=+2.001626779
+Running at 2022-10-09 16:15:48.801876258 -0300 -03 m=+3.002048999
+Stopping code execution...
+</code></pre></div>
+
+<h4 id="deadline">Deadline<a class="headerlink" href="#deadline" title="Permanent link to this section">#</a></h4>
+<p>As the name suggests, a <strong>Deadline</strong> Context caps how long an instruction or process is allowed to run. That lets us tell the application how long a given piece of code is allowed to take. There are two different functions for working with <strong>Deadline</strong>:</p>
+<ul>
+<li><strong><code>context.WithDeadline()</code></strong> — sets a <strong>fixed point in time</strong>.<ul>
+<li>Example: the context has until 10 PM on October 9th, 2022 to finish executing.</li>
+</ul>
+</li>
+<li><strong><code>context.WithTimeout()</code></strong> — sets a <strong>duration counted from the moment it's created</strong>.<ul>
+<li>Example: the context has 4 minutes from now to finish executing.</li>
+</ul>
+</li>
+</ul>
+<h5 id="contextwithdeadline">context.WithDeadline()<a class="headerlink" href="#contextwithdeadline" title="Permanent link to this section">#</a></h5>
+<p>Let's take the same code from before and tweak a few parts:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;time&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">deadline</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">Add</span><span class="p">(</span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithDeadline</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deadline</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">cancel</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">executeFunction</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">executeFunction</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">select</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">():</span><span class="w"></span>
+<span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Stopping code execution...&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Running at&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">())</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>We create a new <code>deadline</code> variable by adding three seconds to the current time and pass it to <code>context.WithDeadline()</code>. This way, the <code>executeFunction()</code> call is interrupted once that three-second window has passed.</p>
+<p>Running the code above produces output similar to this:</p>
+<div class="highlight"><pre><span></span><code>Running at 2022-10-09 17:30:50.492897161 -0300 -03 m=+1.000190057
+Running at 2022-10-09 17:30:51.493583512 -0300 -03 m=+2.000876359
+Running at 2022-10-09 17:30:52.493694606 -0300 -03 m=+3.000987449
+Running at 2022-10-09 17:30:53.493795753 -0300 -03 m=+4.001088530
+Stopping code execution…
+</code></pre></div>
+
+<h5 id="contextwithtimeout">context.WithTimeout()<a class="headerlink" href="#contextwithtimeout" title="Permanent link to this section">#</a></h5>
+<p>We can use <code>context.WithTimeout()</code> to produce the same behavior. Just swap lines <strong>11</strong> and <strong>12</strong> for:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">deadline</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="w"></span>
+<span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithTimeout</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deadline</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+<p>The difference from the previous code is that now we no longer need to calculate the current instant plus three seconds. The output is the same.</p>
+<p>One interesting detail in this structure is that we also call <code>cancel()</code>, but with the <code>defer</code> keyword to make sure it runs last. Even though we're capping the execution time, <strong>we can also cancel the instruction early at any point, overriding the time-limit rule</strong>, just like explained in the <strong>Cancellation Signals</strong> section.</p>
+<h5 id="request-scoped-value">Request-scoped value<a class="headerlink" href="#request-scoped-value" title="Permanent link to this section">#</a></h5>
+<p>Besides controlling execution time and stopping, Context can also pass <strong>key-value</strong> values down to child instructions. This concept matters because it <strong>works regardless of whether the call to those instructions is synchronous or asynchronous</strong>. These values are stored inside the context and are immutable. Let's walk through the code below, a synchronous example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithValue</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sessionId&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Session123&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">showValue</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">showValue</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Value</span><span class="p">(</span><span class="s">&quot;sessionId&quot;</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="nx">addKeyValue</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;typeError&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ErrorType123&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Value</span><span class="p">(</span><span class="s">&quot;typeError&quot;</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">addKeyValue</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="o">*</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="kd">interface</span><span class="p">{},</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="o">*</span><span class="nx">ctx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithValue</span><span class="p">(</span><span class="o">*</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>We define the initial, empty context with <code>context.Background()</code>. After that, we create a new context from that initial one with <code>context.WithValue()</code>, adding a couple of sample values along the way. Since those values are stored in the Context, we can read them elsewhere in the program with <code>ctx.Value()</code>, passing in the matching key. If that key doesn't exist, the return value is <code>nil</code>. It's also possible to add new values to a context by calling <code>context.WithValue()</code> again, passing in the previous context and reassigning it to itself.</p>
+<h3 id="other-scenarios">Other scenarios<a class="headerlink" href="#other-scenarios" title="Permanent link to this section">#</a></h3>
+<p>Context's use cases aren't limited to what's covered here. These days, Go libraries — standard or third-party — often require passing a Context into their functions. The goal of this post was to understand its fundamentals and common uses.</p>
+<p>See you next time :)</p>
+<h4 id="references">References<a class="headerlink" href="#references" title="Permanent link to this section">#</a></h4>
+<ul>
+<li><a href="https://pkg.go.dev/context">https://pkg.go.dev/context</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-contexts-in-go">https://www.digitalocean.com/community/tutorials/how-to-use-contexts-in-go</a></li>
+<li><a href="https://p.agnihotry.com/post/understanding_the_context_package_in_golang/">https://p.agnihotry.com/post/understanding_the_context_package_in_golang/</a></li>
+<li><a href="https://www.youtube.com/watch?v=eGYZPUoH78c">https://www.youtube.com/watch?v=eGYZPUoH78c</a></li>
+</ul>
+  </div>
+
+  <div class="post-tags">
+<a class="tag" href="https://diegofernando.dev/en/tag/golang">golang</a><a class="tag" href="https://diegofernando.dev/en/tag/context">context</a><a class="tag" href="https://diegofernando.dev/en/tag/programming">programming</a>  </div>
+
+
+  <div class="discuss">
+    <p class="section-label">comments</p>
+    <script src="https://giscus.app/client.js"
+      data-repo="diegofsousa/diegofsousa.github.io"
+      data-repo-id="MDEwOlJlcG9zaXRvcnkxMTAwOTM0NTE="
+      data-category="General"
+      data-category-id="DIC_kwDOBo_ki84DFguP"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="transparent_dark"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  </div>
+</article>
+
+  <footer class="site">
+    <div class="bio">
+      <div class="avatar">
+            <img src="/assets/images/eu-df.jpeg" alt="Diego Fernando">
+      </div>
+      <div class="who">
+        <b>Diego Fernando</b>
+<p>Software Engineer. Enthusiast of distributed systems, programming languages and Brazilian music. Proudly born and raised in northeastern Brazil ❤️.</p>        <div class="links">
+<a href="https://github.com/diegofsousa" target="_blank" rel="noopener">github ↗</a><a href="https://www.linkedin.com/in/diegofsousa/" target="_blank" rel="noopener">linkedin ↗</a>        </div>
+      </div>
+    </div>
+    <span class="copyline">© 2026 diegofernando.dev</span>
+  </footer>
+
+  <script>
+    window.SITE_I18N = {
+      loading: "loading index...",
+      unavailable: "Search is unavailable right now.",
+      noResultsFor: "No results for",
+      copy: "copy",
+      copied: "copied!"
+    };
+  </script>
+  <script type="text/javascript" src="https://diegofernando.dev/en/../theme/js/script.js"></script>
+    <!-- Cloudflare Web Analytics -->
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "314a3fdb9c9a47e8ba0d1bde9b8636d1"}'></script>
+    <!-- End Cloudflare Web Analytics -->
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Diego Fernando
+
+> I'm a technology enthusiast and programmer
+Software Engineer. Enthusiast of distributed systems, programming languages and Brazilian music. Proudly born and raised in northeastern Brazil ❤️.
+This site is also available in pt-br: https://diegofernando.dev/llms.txt
+
+## Posts
+- [Understanding the Context package in Go](https://diegofernando.dev/en/entendendo-o-package-context-em-go.html): Over the past few months I've been putting more effort into studying Go. I'll admit it's not my first contact with the language — back in 2017 I had the...
+
+## Pages
+- [About](https://diegofernando.dev/en/pages/about/)

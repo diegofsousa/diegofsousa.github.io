@@ -1,40 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 
   <title>Erros comuns cometidos em Go - Parte I</title>
 
+  <meta name="description" content="Entusiasta de tecnologia e programador" />
 
   <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="origin" />
   <meta name="generator" content="Pelican" />
 <link href="https://diegofernando.dev/erros-comuns-cometidos-em-go.html" rel="canonical" />
+      <link rel="alternate" hreflang="pt-br" href="https://diegofernando.dev/" />
+      <link rel="alternate" hreflang="en" href="https://diegofernando.dev/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://diegofernando.dev/" />
+
   <!-- Feed -->
         <link href="https://diegofernando.dev/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Full Atom Feed" />
           <link href="https://diegofernando.dev/feeds/{slug}.atom.xml" type="application/atom+xml" rel="alternate" title="Diego Fernando Categories Atom Feed" />
 
   <link href="https://diegofernando.dev/theme/css/style.css" type="text/css" rel="stylesheet" />
 
-  <!-- Code highlight color scheme -->
-      <link href="https://diegofernando.dev/theme/css/code_blocks/github.css" rel="stylesheet">
-
-
-  <!-- Custom fonts -->
-  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
-  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
-
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-  <![endif]-->
 
 
 
@@ -53,11 +47,11 @@
 <meta property="og:site_name" content="Diego Fernando"/>
 <meta property="og:title" content="Erros comuns cometidos em Go - Parte I"/>
 <meta property="og:description" content="Go é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse..."/>
-<meta property="og:locale" content="en_US"/>
+<meta property="og:locale" content="pt_BR"/>
 <meta property="og:url" content="https://diegofernando.dev/erros-comuns-cometidos-em-go.html"/>
 <meta property="og:type" content="article"/>
 <meta property="article:published_time" content="2025-04-25 17:44:00-03:00"/>
-<meta property="article:modified_time" content="2025-04-26 16:51:34-03:00"/>
+<meta property="article:modified_time" content="2026-09-13 17:42:34-03:00"/>
 <meta property="article:author" content="https://diegofernando.dev/author/diego">
   <meta property="article:publisher" content="http://facebook.com/arulraj.net" />
 <meta property="article:section" content="misc"/>
@@ -76,6 +70,7 @@
 
       <meta name="twitter:description" content="Go é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse...">
 
+
 <script type="application/ld+json">
 {
   "@context": "http://schema.org",
@@ -83,419 +78,403 @@
   "name": "Erros comuns cometidos em Go - Parte I",
   "headline": "Erros comuns cometidos em Go - Parte I",
   "datePublished": "2025-04-25 17:44:00-03:00",
-  "dateModified": "2025-04-26 16:51:34-03:00",
+  "dateModified": "2026-09-13 17:42:34-03:00",
   "author": {
     "@type": "Person",
-    "name": "diego",
+    "name": "Diego Fernando",
     "url": "https://diegofernando.dev/author/diego"
   },
   "image": "https://diegofernando.dev/assets/images/common-errors.jpeg",
   "url": "https://diegofernando.dev/erros-comuns-cometidos-em-go.html",
   "description": "Go é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse..."
 }
-</script>
-</head>
-<!-- TODO : Body class -->
-<body class="home-template">
+</script></head>
+<body>
 
-<nav id="menu">
-  <a class="close-button">Close</a>
-  <div class="nav-wrapper">
-    <p class="nav-label">Menu</p>
-    <ul>
+  <header class="site">
+    <div class="brand">
+      <h1><a href="https://diegofernando.dev/">Diego Fernando</a></h1>
+<p>Entusiasta de tecnologia e programador</p>    </div>
+<nav class="site">
+  <a href="https://diegofernando.dev/">home</a>
+  <a href="https://diegofernando.dev/archives.html">arquivo</a>
+  <a href="https://diegofernando.dev/tags.html">tags</a>
+    <a href="https://diegofernando.dev/pages/about/">sobre</a>
+    <a href="https://diegofernando.dev/feeds/all.atom.xml" class="rss">⟁ rss</a>
+      <a href="https://diegofernando.dev/en/" class="lang-switch" hreflang="en">in english</a>
+  <button type="button" id="search-toggle" class="search-toggle" aria-haspopup="dialog" aria-controls="search-overlay">⌕ buscar</button>
+</nav>  </header>
 
-              <li role="presentation"><a href="https://diegofernando.dev/pages/about/">About</a></li>
-
-    </ul>
-  </div>
-</nav>
-    <!-- Progressbar -->
-    <div class="progress-container">
-        <span class="progress-bar"></span>
-    </div>
-
-    <!-- Page Header -->
-    <!-- Set your background image for this header on the line below. -->
-    <header id="post-header" class="has-cover">
-      <div class="inner">
-        <nav id="navigation">
-            <span id="home-button" class="nav-button">
-                <a class="home-button" href="https://diegofernando.dev/" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
-            </span>
-          <span id="menu-button" class="nav-button">
-            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
-          </span>
-        </nav>
-        <h1 class="post-title">Erros comuns cometidos em Go - Parte I</h1>
-        <!-- TODO : Proper class for headline -->
-        <span class="post-meta">
-                <a href="https://diegofernando.dev/author/diego">Diego Fernando</a>
-            | <time datetime="25 abr 2025">25 abr 2025</time>
-        </span>
-        <!-- TODO : Modified check -->
-            <span class="post-meta"> | Updated on 26 abr 2025</span>
-            <div class="post-cover cover" style="background-image: url('https://diegofernando.dev/assets/images/common-errors.jpeg')">
+  <div class="search-overlay" id="search-overlay" hidden>
+    <div class="search-panel" role="dialog" aria-modal="true" aria-label="Buscar posts...">
+      <div class="search-field">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input type="text" id="search-input" placeholder="Buscar posts..." autocomplete="off" aria-label="Buscar posts...">
+        <button type="button" id="search-close" aria-label="Fechar busca">✕</button>
       </div>
-    </header>
+      <div id="search-results" class="search-results" aria-live="polite"></div>
+    </div>
+  </div>
 
-  <section id="wrapper">
-    <a class="hidden-close"></a>
+<article class="post" data-pagefind-body>
+  <p class="post-crumb"><a href="https://diegofernando.dev/">Posts</a> / Erros comuns cometidos em Go - Parte I</p>
+  <h2 class="post-title" data-pagefind-meta="title">Erros comuns cometidos em Go - Parte I</h2>
+  <div class="post-meta">
+      <span><b><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></b></span>
+    <span><time datetime="25 abr 2025">25 abr 2025</time></span>
+<span>misc</span><span>atualizado em 13 set 2026</span>  </div>
 
-    <!-- Post content -->
-    <main class="content" role="main">
-        <article class="post">
-        <div class="inner">
-            <section class="post-content">
-                <p><strong>Go</strong> é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse perfil faz com que muitos desenvolvedores, cometam alguns deslizes. Equívocos podem acontecer tanto com iniciantes quanto com profissionais mais experientes. Inclusive, por experiência própria, já me peguei utilizando traços de outra linguagem ao programar em Go.</p>
+  <div class="post-content">
+    <p><strong>Go</strong> é uma linguagem marcada pela sua excentricidade, seja pelo foco em performance ou pela experiência única de desenvolvimento. Esse perfil faz com que muitos desenvolvedores, cometam alguns deslizes. Equívocos podem acontecer tanto com iniciantes quanto com profissionais mais experientes. Inclusive, por experiência própria, já me peguei utilizando traços de outra linguagem ao programar em Go.</p>
 <p>Neste artigo, apresento <strong>5 erros comuns</strong> cometidos por quem está se aventurando na linguagem. Alguns dos pontos listados refletem situações que presencio no dia a dia. Além disso, fiz uma pesquisa para identificar outros cenários recorrentes. Essa é uma lista curada que pode fazer sentido principalmente para <em>gophers</em> de primeira viagem. Então vamos à lista:</p>
-<h1>#1: Passando valores em vez de ponteiros</h1>
+<h3 id="1-passando-valores-em-vez-de-ponteiros">#1: Passando valores em vez de ponteiros<a class="headerlink" href="#1-passando-valores-em-vez-de-ponteiros" title="Link direto para esta seção">#</a></h3>
 <p>Neste caso, não se trata necessariamente de um erro. Na verdade, não há qualquer problema em passar valores diretamente, especialmente para tipos pequenos como <code>int</code>, <code>string</code> e <code>bool</code>. Porém, essa escolha faz diferença quando lidamos com tipos maiores, como uma struct que contém vários arrays.</p>
 <p>Sempre que criamos uma função ou método que recebe um argumento por valor, o Go <strong>cria uma cópia</strong> do elemento dentro do escopo da função. Para ilustrar isso, vamos fazer um experimento: criaremos uma variável chamada <code>name</code> e uma função <code>showName</code>, na qual essa variável será passada por valor:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">name</span> <span class="o">:=</span> <span class="s2">&quot;test&quot;</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="w"></span>
 
-    <span class="n">showName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="nx">showName</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">showName</span><span class="p">(</span><span class="n">name</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">showName</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Apesar de ser uma prática bastante comum, é importante entender exatamente o que está acontecendo. A execução do método <code>showName</code> implica na reserva de um novo espaço de memória para armazenar a cópia de <code>name</code>. Podemos fazer um pequena modificação no código para ilustrar:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">name</span> <span class="o">:=</span> <span class="s2">&quot;test&quot;</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="n">name</span><span class="p">)</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
 
-    <span class="n">showName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="nx">showName</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">showName</span><span class="p">(</span><span class="n">name</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">showName</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Nesta nova versão, imprimimos tanto o valor de <code>name</code> quanto seu endereço de memória no método <code>main</code> e dentro de <code>showName</code>. A saída será:</p>
-<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="n">xc000120040</span><span class="w"></span>
-<span class="mf">0</span><span class="n">xc000120050</span><span class="w"></span>
-<span class="n">test</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code>0xc000120040
+0xc000120050
+test
 
-<span class="n">Program</span><span class="w"> </span><span class="n">exited</span><span class="mf">.</span><span class="w"></span>
+Program exited.
 </code></pre></div>
 
 <p>Os endereços <code>0xc000120040</code> e <code>0xc000120050</code> representam locais diferentes na memória. Isso evidencia que <code>name</code> foi copiado, ou seja: dentro de <code>showName</code> estamos trabalhando com uma nova instância, independente da original.</p>
-<h2>Passando o valor de <code>name</code> x Passando o ponteiro de <code>name</code></h2>
+<h4 id="passando-o-valor-de-name-x-passando-o-ponteiro-de-name">Passando o valor de <code>name</code> x Passando o ponteiro de <code>name</code><a class="headerlink" href="#passando-o-valor-de-name-x-passando-o-ponteiro-de-name" title="Link direto para esta seção">#</a></h4>
 <p>Em Go, geralmente sempre passamos valores. Porém, quando queremos manipular o mesmo espaço de memória, enviamos um como valor um ponteiro, que aponta para o dado original.</p>
 <p>Com esse conceito em mente, conseguimos entender como funciona a passagem de parâmetros como <strong>valor</strong> e como <strong>ponteiro</strong>. Quando usamos a passagem por <strong>valor</strong>, a função <code>showName</code> recebe apenas o conteúdo de <code>name</code>. Agora, vejamos um exemplo de passagem por <strong>ponteiro</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">name</span> <span class="o">:=</span> <span class="s2">&quot;test&quot;</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="n">name</span><span class="p">)</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
 
-    <span class="n">showName</span><span class="p">(</span><span class="o">&amp;</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="nx">showName</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">showName</span><span class="p">(</span><span class="n">name</span> <span class="o">*</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">*</span><span class="n">name</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">showName</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">*</span><span class="nx">name</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Modificamos o código anterior. Ao invés de passar o conteúdo de <code>name</code> para <code>showName</code>, enviamos seu endereço de memória. Com isso, também alteramos a definição da função: agora ela recebe um ponteiro de <code>string</code> (<code>*string</code>), em vez de uma <code>string</code> simples.</p>
 <p>A forma de exibir o valor e o endereço de memória muda: para acessar o conteúdo, precisamos <strong>desreferenciar</strong> (ou <em>dereferenciar</em>) o ponteiro usando <code>*name</code>. A saída será:</p>
-<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="n">xc0000a8040</span><span class="w"></span>
-<span class="mf">0</span><span class="n">xc0000a8040</span><span class="w"></span>
-<span class="n">test</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code>0xc0000a8040
+0xc0000a8040
+test
 
-<span class="n">Program</span><span class="w"> </span><span class="n">exited</span><span class="mf">.</span><span class="w"></span>
+Program exited.
 </code></pre></div>
 
 <p>Agora estamos manipulando <code>name</code> diretamente no mesmo endereço de memória. Um ponto interessante é que, se alterarmos o valor de <code>name</code> dentro da função <code>showName</code>, a variável original, definida no método <code>main</code>, também será alterada  (justamente porque ambas compartilham o mesmo espaço de memória).</p>
-<h1>#2: Acreditar cegamente em ponteiros</h1>
+<h3 id="2-acreditar-cegamente-em-ponteiros">#2: Acreditar cegamente em ponteiros<a class="headerlink" href="#2-acreditar-cegamente-em-ponteiros" title="Link direto para esta seção">#</a></h3>
 <p>Vamos a um caso clássico: declaração de um ponteiro e uso imediato. Quando trabalhamos com ponteiros, o ideal é <strong>verificar se eles não estão nulos</strong> antes de acessá-los. Uma situação de erro seria:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">var</span> <span class="n">test</span> <span class="o">*</span><span class="nb">int</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="o">*</span><span class="kt">int</span><span class="w"></span>
 
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">*</span><span class="n">test</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">*</span><span class="nx">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>A saída para este código é:</p>
-<div class="highlight"><pre><span></span><code><span class="nl">panic</span><span class="p">:</span><span class="w"> </span><span class="n">runtime</span><span class="w"> </span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="n">invalid</span><span class="w"> </span><span class="n">memory</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">nil</span><span class="w"> </span><span class="n">pointer</span><span class="w"> </span><span class="n">dereference</span><span class="w"></span>
-<span class="p">[</span><span class="n">signal</span><span class="w"> </span><span class="n">SIGSEGV</span><span class="o">:</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">violation</span><span class="w"> </span><span class="n">code</span><span class="o">=</span><span class="mh">0x1</span><span class="w"> </span><span class="n">addr</span><span class="o">=</span><span class="mh">0x0</span><span class="w"> </span><span class="n">pc</span><span class="o">=</span><span class="mh">0x491476</span><span class="p">]</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code>panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x491476]
 
-<span class="n">goroutine</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">[</span><span class="n">running</span><span class="p">]</span><span class="o">:</span><span class="w"></span>
-<span class="n">main</span><span class="p">.</span><span class="n">main</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">sandbox2767359061</span><span class="o">/</span><span class="n">prog</span><span class="p">.</span><span class="n">go</span><span class="o">:</span><span class="mi">8</span><span class="w"> </span><span class="o">+</span><span class="mh">0x16</span><span class="w"></span>
+goroutine 1 [running]:
+main.main()
+    /tmp/sandbox2767359061/prog.go:8 +0x16
 </code></pre></div>
 
 <p>Ao tentarmos imprimir o valor de <code>test</code> por meio da desreferenciação, ocorre um erro. Isso acontece porque o ponteiro não foi inicializado e, por padrão, é <code>nil</code>. A minha dica aqui é: <strong>por padrão, nunca acredite em ponteiros</strong>. Para este caso, uma verificação básica já evita o erro:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">var</span> <span class="n">test</span> <span class="o">*</span><span class="nb">int</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="o">*</span><span class="kt">int</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">test</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">*</span><span class="n">test</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">*</span><span class="nx">test</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
-<h1>#3: Ignorar erros</h1>
+<h3 id="3-ignorar-erros">#3: Ignorar erros<a class="headerlink" href="#3-ignorar-erros" title="Link direto para esta seção">#</a></h3>
 <p>Quando lidamos com métodos e funções, normalmente nos deparamos com o seguinte cenário:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">test</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="n">doSomething</span><span class="p">()</span>
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">*</span><span class="n">test</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">*</span><span class="nx">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">doSomething</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nb">int</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="o">//</span> <span class="n">do</span> <span class="n">sometring</span>
-    <span class="k">return</span> <span class="n">nil</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// do sometring</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;some error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>É muito tentador ignorar o tratamento de erros em Go, especialmente devido à sua verbosidade. Porém, não fazer o tratamento adequado é, de longe, a <strong>pior</strong> coisa que podemos fazer. No código acima, por consequência, iremos esbarrar no mesmo erro já visto anteriormente:</p>
-<div class="highlight"><pre><span></span><code><span class="nl">panic</span><span class="p">:</span><span class="w"> </span><span class="n">runtime</span><span class="w"> </span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="n">invalid</span><span class="w"> </span><span class="n">memory</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">nil</span><span class="w"> </span><span class="n">pointer</span><span class="w"> </span><span class="n">dereference</span><span class="w"></span>
-<span class="p">[</span><span class="n">signal</span><span class="w"> </span><span class="n">SIGSEGV</span><span class="o">:</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">violation</span><span class="w"> </span><span class="n">code</span><span class="o">=</span><span class="mh">0x1</span><span class="w"> </span><span class="n">addr</span><span class="o">=</span><span class="mh">0x0</span><span class="w"> </span><span class="n">pc</span><span class="o">=</span><span class="mh">0x49438f</span><span class="p">]</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code>panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x49438f]
 
-<span class="n">goroutine</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">[</span><span class="n">running</span><span class="p">]</span><span class="o">:</span><span class="w"></span>
-<span class="n">main</span><span class="p">.</span><span class="n">main</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">sandbox2271710943</span><span class="o">/</span><span class="n">prog</span><span class="p">.</span><span class="n">go</span><span class="o">:</span><span class="mi">8</span><span class="w"> </span><span class="o">+</span><span class="mh">0x2f</span><span class="w"></span>
+goroutine 1 [running]:
+main.main()
+    /tmp/sandbox2271710943/prog.go:8 +0x2f
 
-<span class="n">Program</span><span class="w"> </span><span class="n">exited</span><span class="p">.</span><span class="w"></span>
+Program exited.
 </code></pre></div>
 
 <p>Em Go, é comum que funções e métodos retornem um erro para sinalizar situações inesperadas. Por isso, sempre devemos considerar a possibilidade de falhas e tratar esses erros adequadamente para manter o fluxo da aplicação seguro. No caso acima, podemos evitar a falha criando um tratamento simples:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="s2">&quot;fmt&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">test</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">doSomething</span><span class="p">()</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">()</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)</span><span class="w"></span>
 
-        <span class="o">//</span> <span class="n">add</span> <span class="n">handling</span> <span class="n">error</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="c1">// add handling error</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">*</span><span class="n">test</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="o">*</span><span class="nx">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">doSomething</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nb">int</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="o">//</span> <span class="n">do</span> <span class="n">sometring</span>
-    <span class="k">return</span> <span class="n">nil</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// do sometring</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;some error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Assim, garantimos que o programa não sofra interrupções inesperadas.</p>
-<h1>#4: Supergeneralizar erros</h1>
+<h3 id="4-supergeneralizar-erros">#4: Supergeneralizar erros<a class="headerlink" href="#4-supergeneralizar-erros" title="Link direto para esta seção">#</a></h3>
 <p>Existe um <a href="https://go.dev/blog/errors-are-values">discurso bem famoso feito pelo próprio Rob Pike sobre erros</a>, chamado <strong><em>"Errors are values"</em></strong>. Isso endossa bem a filosofia da linguagem e nos convida a refletir sobre visão tradicional deste tema.</p>
 <blockquote>
 <p>“<strong><em>Whatever you do, always check your errors!. -Rob Pike</em></strong>”. </p>
 </blockquote>
 <p>Vamos entender esse ponto com um caso de uso de um sistema que realiza chamadas a um banco de dados:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s2">&quot;fmt&quot;</span>
-    <span class="s2">&quot;log&quot;</span>
-<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;log&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
 
-<span class="nb">type</span> <span class="n">Person</span> <span class="n">struct</span> <span class="p">{</span>
-    <span class="n">name</span> <span class="n">string</span>
-<span class="p">}</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Person</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="p">(</span><span class="n">person</span> <span class="n">Person</span><span class="p">)</span> <span class="n">validate</span><span class="p">()</span> <span class="n">error</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;person with no name&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">nil</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">person</span><span class="w"> </span><span class="nx">Person</span><span class="p">)</span><span class="w"> </span><span class="nx">validate</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;person with no name&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-    <span class="n">p</span> <span class="o">:=</span> <span class="n">Person</span><span class="p">{</span>
-        <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;diego&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="nx">p</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">Person</span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;diego&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">err</span> <span class="o">:=</span> <span class="n">createPerson</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createPerson</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">p</span><span class="p">)</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="p">}</span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">createPerson</span><span class="p">(</span><span class="n">person</span> <span class="o">*</span><span class="n">Person</span><span class="p">)</span> <span class="n">error</span> <span class="p">{</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">createPerson</span><span class="p">(</span><span class="nx">person</span><span class="w"> </span><span class="o">*</span><span class="nx">Person</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-    <span class="o">//</span> <span class="n">validate</span> <span class="n">person</span>
-    <span class="n">err</span> <span class="o">:=</span> <span class="n">person</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+<span class="w">    </span><span class="c1">// validate person</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">validate</span><span class="p">()</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;db insert error&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;db insert error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="o">//</span> <span class="n">get</span> <span class="n">db</span> <span class="n">instance</span>
-    <span class="n">db</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">GetDB</span><span class="p">()</span>
+<span class="w">    </span><span class="c1">// get db instance</span><span class="w"></span>
+<span class="w">    </span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">GetDB</span><span class="p">()</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;db insert error&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;db insert error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="o">//</span> <span class="n">db</span> <span class="n">commit</span> <span class="n">data</span>
-    <span class="n">err</span> <span class="o">:=</span> <span class="n">db</span><span class="o">.</span><span class="n">Commit</span><span class="p">()</span>
+<span class="w">    </span><span class="c1">// db commit data</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;db insert error&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;db insert error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">nil</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Supondo que todas as camadas estejam bem implementadas, esse código tende a funcionar. Mas o problema excede o fato de funcionar ou não. A dúvida implícita neste código é: <em>como sabemos o que </em><em>de fato</em><em> aconteceu em um erro <code>db insert error</code>?</em> Um erro genérico como esse pode ter várias causas diferentes. Podemos melhorar o tratamento assim:</p>
-<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="o">...</span><span class="w"></span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="nv">validate</span><span class="w"> </span><span class="nv">person</span><span class="w"></span>
-<span class="w">    </span><span class="nv">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nv">person</span><span class="o">.</span><span class="nf">validate</span><span class="p">()</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="c1">// ...</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// validate person</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">validate</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nv">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nv">return</span><span class="w"> </span><span class="nv">err</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="nv">get</span><span class="w"> </span><span class="nv">db</span><span class="w"> </span><span class="nv">instance</span><span class="w"></span>
-<span class="w">    </span><span class="nv">db</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nf">GetDB</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// get db instance</span><span class="w"></span>
+<span class="w">    </span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">GetDB</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nv">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nv">return</span><span class="w"> </span><span class="nv">fmt</span><span class="o">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&quot;get instance db error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;get instance db error&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="nv">db</span><span class="w"> </span><span class="nv">commit</span><span class="w"> </span><span class="nv">data</span><span class="w"></span>
-<span class="w">    </span><span class="nv">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nv">db</span><span class="o">.</span><span class="nf">Commit</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// db commit data</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nv">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nv">return</span><span class="w"> </span><span class="nv">fmt</span><span class="o">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&quot;db commit error&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;db commit error&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">    </span><span class="nv">return</span><span class="w"> </span><span class="nv">nil</span><span class="w"></span>
-<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="o">...</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ...</span><span class="w"></span>
 </code></pre></div>
 
 <p>Essa pequena mudança já traz um panorama muito mais claro sobre o que de fato ocorreu. Uma sugestão adicional para melhorar ainda mais a tratativa de erros é <strong>implementar a interface de erro do Go</strong>, criando erros personalizados e enriquecendo as mensagens de retorno. Veremos isso no próximo tópico.</p>
-<h2>Criando tipos de erros personalizados através da interface <code>error</code></h2>
+<h4 id="criando-tipos-de-erros-personalizados-atraves-da-interface-error">Criando tipos de erros personalizados através da interface <code>error</code><a class="headerlink" href="#criando-tipos-de-erros-personalizados-atraves-da-interface-error" title="Link direto para esta seção">#</a></h4>
 <p>No Go, qualquer tipo que implemente a seguinte interface é considerado um erro:</p>
-<div class="highlight"><pre><span></span><code>type error interface {
-    Error() string
-}
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">Error</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Quando sobrescrevemos essa interface, temos a possibilidade de criar tipos de erros personalizados. Isso traz muito mais <strong>flexibilidade</strong>, pois não ficamos mais limitados a usar apenas uma string para identificar o erro. Veja o exemplo abaixo:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">main</span>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s2">&quot;fmt&quot;</span>
-    <span class="s2">&quot;log&quot;</span>
-<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;log&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
 
 
-<span class="nb">type</span> <span class="n">Person</span> <span class="n">struct</span> <span class="p">{</span>
-    <span class="n">name</span> <span class="n">string</span>
-<span class="p">}</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Person</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="nb">type</span> <span class="n">CreatePersonError</span> <span class="n">struct</span> <span class="p">{</span>
-    <span class="n">Op</span>  <span class="n">string</span> <span class="o">//</span> <span class="n">failed</span> <span class="n">operation</span> <span class="p">(</span><span class="n">ex</span><span class="p">:</span> <span class="s2">&quot;get_db_instance&quot;</span><span class="p">,</span> <span class="s2">&quot;db_commit&quot;</span><span class="p">)</span>
-    <span class="n">Err</span> <span class="n">error</span>  <span class="o">//</span> <span class="n">original</span> <span class="n">error</span>
-<span class="p">}</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">CreatePersonError</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">Op</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="c1">// failed operation (ex: &quot;get_db_instance&quot;, &quot;db_commit&quot;)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">Err</span><span class="w"> </span><span class="kt">error</span><span class="w">  </span><span class="c1">// original error</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span><span class="n">CreatePersonError</span><span class="p">)</span> <span class="n">Error</span><span class="p">()</span> <span class="n">string</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="s2">&quot;create person failed at </span><span class="si">%s</span><span class="s2">: %v&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">Op</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">Err</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="o">*</span><span class="nx">CreatePersonError</span><span class="p">)</span><span class="w"> </span><span class="nx">Error</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;create person failed at %s: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Op</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Err</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="p">(</span><span class="n">person</span> <span class="n">Person</span><span class="p">)</span> <span class="n">validate</span><span class="p">()</span> <span class="n">error</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s2">&quot;person with no name&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">nil</span>
-<span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">person</span><span class="w"> </span><span class="nx">Person</span><span class="p">)</span><span class="w"> </span><span class="nx">validate</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;person with no name&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-    <span class="n">p</span> <span class="o">:=</span> <span class="n">Person</span><span class="p">{</span>
-        <span class="n">name</span><span class="p">:</span> <span class="s2">&quot;diego&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="nx">p</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">Person</span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;diego&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">err</span> <span class="o">:=</span> <span class="n">createPerson</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createPerson</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">p</span><span class="p">)</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="p">}</span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">func</span> <span class="n">createPerson</span><span class="p">(</span><span class="n">person</span> <span class="o">*</span><span class="n">Person</span><span class="p">)</span> <span class="n">error</span> <span class="p">{</span>
-    <span class="n">err</span> <span class="o">:=</span> <span class="n">person</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">err</span>
-    <span class="p">}</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">createPerson</span><span class="p">(</span><span class="nx">person</span><span class="w"> </span><span class="o">*</span><span class="nx">Person</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">person</span><span class="p">.</span><span class="nx">validate</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="o">//</span> <span class="n">get</span> <span class="n">db</span> <span class="n">instance</span>
-    <span class="n">db</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">GetDB</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="o">&amp;</span><span class="n">CreatePersonError</span><span class="p">{</span>
-            <span class="n">Op</span><span class="p">:</span>  <span class="s2">&quot;get_db_instance&quot;</span><span class="p">,</span>
-            <span class="n">Err</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">// get db instance</span><span class="w"></span>
+<span class="w">    </span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">GetDB</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">CreatePersonError</span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">Op</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;get_db_instance&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nx">Err</span><span class="p">:</span><span class="w"> </span><span class="nx">err</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="o">//</span> <span class="n">db</span> <span class="n">commit</span> <span class="n">data</span>
-    <span class="n">err</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Commit</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="o">&amp;</span><span class="n">CreatePersonError</span><span class="p">{</span>
-            <span class="n">Op</span><span class="p">:</span>  <span class="s2">&quot;db_commit&quot;</span><span class="p">,</span>
-            <span class="n">Err</span><span class="p">:</span> <span class="n">err</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="c1">// db commit data</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">Commit</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">CreatePersonError</span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">Op</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;db_commit&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nx">Err</span><span class="p">:</span><span class="w"> </span><span class="nx">err</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">nil</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Criamos um novo tipo chamado <code>CreatePersonError</code> e implementamos o método <code>Error()</code> para ele.
 Assim, capturamos o erro original e conseguimos adicionar informações importantes, como a operação que falhou. Todas essas melhorias facilitam um possível <em>troubleshooting</em> em cenários de falhas.</p>
-<h1>#5: Registrar erros com <code>log.Fatal()</code></h1>
+<h3 id="5-registrar-erros-com-logfatal">#5: Registrar erros com <code>log.Fatal()</code><a class="headerlink" href="#5-registrar-erros-com-logfatal" title="Link direto para esta seção">#</a></h3>
 <p>Quando nosso sistema encontra um erro irrecuperável, registrar o erro com <code>log.Fatal()</code> pode parecer uma solução conveniente, já que ele registra a mensagem e encerra o processo imediatamente. Porém, o que muitas vezes passa despercebido é que <code>log.Fatal()</code> internamente faz uma chamada a <code>os.Exit()</code>.
 Isso é <strong>problemático</strong> porque impede a execução de qualquer outra rotina de limpeza ou encerramento, como <code>defer</code>'s ou fechamento de conexões.</p>
 <p>Por isso, a abordagem recomendada é sempre retornar o erro para o nível superior da aplicação, onde ele possa ser tratado adequadamente. Normalmente, o único local onde o uso de <code>log.Fatal()</code> é considerado aceitável é dentro da função <code>main()</code>, onde faz sentido finalizar a execução do programa de maneira controlada.</p>
-<h1>Considerações finais</h1>
+<h3 id="consideracoes-finais">Considerações finais<a class="headerlink" href="#consideracoes-finais" title="Link direto para esta seção">#</a></h3>
 <p>Existem muitas outras situações que poderiam ser listadas aqui (<strong>inclusive, me conta nos comentários quais você adicionaria!</strong> 😊).
 O Go é uma linguagem que tem padrões bem estabelecidos e formas claras de construir soluções. E é completamente normal a gente tropeçar de vez em quando, às vezes por descuido, por falta de atenção ou simplesmente pela correria do dia a dia (<em>afinal, todos temos prazos, né?</em>).</p>
 <p>Neste post, quis compartilhar algumas situações que já vi acontecer (algumas vividas na pele) errando, aprendendo e, claro, criando alguns bugs no caminho. A ideia foi trazer um pouco dessas experiências e boas práticas que fazem parte do ecossistema Go.</p>
 <p>Minha intenção é transformar esse post em uma série, então fica por aqui e vamos seguir aprendendo juntos.</p>
 <p>Até a próxima :)</p>
-<h4>Referências</h4>
+<h3 id="referencias">Referências<a class="headerlink" href="#referencias" title="Link direto para esta seção">#</a></h3>
 <ul>
 <li><a href="https://www.jetbrains.com/guide/go/tutorials/handle_errors_in_go/common_mistakes/">https://www.jetbrains.com/guide/go/tutorials/handle_errors_in_go/common_mistakes/</a></li>
 <li><a href="https://medium.com/@sebdah/go-best-practices-error-handling-2d15e1f0c5ee">https://medium.com/@sebdah/go-best-practices-error-handling-2d15e1f0c5ee</a></li>
@@ -503,112 +482,67 @@ O Go é uma linguagem que tem padrões bem estabelecidos e formas claras de cons
 <li><a href="https://weilson.medium.com/top-5-most-common-mistakes-in-golang-56be1be9d676">https://weilson.medium.com/top-5-most-common-mistakes-in-golang-56be1be9d676</a></li>
 <li><a href="https://go.dev/blog/errors-are-values">https://go.dev/blog/errors-are-values</a></li>
 </ul>
-            </section>
+  </div>
 
-            <section class="post-info">
-                <div class="post-share">
-                    <a class="twitter" href="https://twitter.com/share?text=Erros comuns cometidos em Go - Parte I&amp;url=https://diegofernando.dev/erros-comuns-cometidos-em-go.html" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
-                    </a>
-                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://diegofernando.dev/erros-comuns-cometidos-em-go.html" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
-                    </a>
-                    <div class="clear"></div>
-                </div>
+  <div class="post-tags">
+<a class="tag" href="https://diegofernando.dev/tag/golang">golang</a><a class="tag" href="https://diegofernando.dev/tag/backend">backend</a><a class="tag" href="https://diegofernando.dev/tag/programacao">programação</a>  </div>
 
-                <aside class="post-tags">
-<a href="https://diegofernando.dev/tag/golang">golang</a><a href="https://diegofernando.dev/tag/backend">backend</a><a href="https://diegofernando.dev/tag/programacao">programação</a>                </aside>
+  <div class="updown">
+    <a class="prev" href="https://diegofernando.dev/o-go-nao-foi-feito-pra-ser-bonito.html">
+      <span class="lbl">‹ anterior</span><span>O Go não foi feito pra ser bonito... e isso não deveria ser um problema.</span>
+    </a>
+    <a class="next" href="https://diegofernando.dev/structs-performaticas-em-go.html">
+      <span class="lbl">próximo ›</span><span>Structs performáticas em Go - padding, word size e clock</span>
+    </a>
+  </div>
 
-                <div class="clear"></div>
-
-                <aside class="post-author">
-
-
-                        <figure class="post-author-avatar">
-                            <img src="https://diegofernando.dev/assets/images/eu-df.jpeg" alt="Diego Fernando" />
-                        </figure>
-                    <div class="post-author-bio">
-                        <h4 class="post-author-name"><a href="https://diegofernando.dev/author/diego">Diego Fernando</a></h4>
-                            <p class="post-author-about">Software Engineer. Enthusiast of distributed systems, programming languages and Brazilian music. Proudly born and raised in northeastern Brazil ❤️.</p>
-                            <span class="post-author-location"><i class="ic ic-location"></i> Brazil</span>
-                            <span class="post-author-website"><a href="https://diegofernando.dev"><i class="ic ic-link"></i> Website</a></span>
-                        <!-- Social linkes in alphabet order. -->
-                            <span class="post-author-github"><a target="_blank" href="https://github.com/diegofsousa"><i class="ic ic-link"></i> GitHub</a></span>
-                            <span class="post-author-linkedin"><a target="_blank" href="https://www.linkedin.com/in/diegofsousa"><i class="ic ic-link"></i> LinkedIn</a></span>
-                    </div>
-                    <div class="clear"></div>
-                </aside>
-
-                </section>
-
-                <script type="text/javascript">
-                    var disqus = 'diegofsousa';
-                    var disqus_shortname = 'diegofsousa';
-                    var disqus_identifier = '/erros-comuns-cometidos-em-go.html';
-                    var disqus_url = 'https://diegofernando.dev/erros-comuns-cometidos-em-go.html';
-                </script>
-                <noscript>Please enable JavaScript to view the comments.</noscript>
-                <section class="post-comments">
-                        <a id="show-disqus" class="post-comments-activate" data-disqus-identifier="/erros-comuns-cometidos-em-go.html" >Show Comments</a>
-                    <div id="disqus_thread"></div>
-                </section>
-
-                <aside class="post-nav">
-                    <a class="post-nav-next" href="https://diegofernando.dev/structs-performaticas-em-go.html">
-                        <section class="post-nav-teaser">
-                            <i class="ic ic-arrow-left"></i>
-                                <h2 class="post-nav-title">Structs performáticas em Go - padding, word size e clock</h2>
-                            <p class="post-nav-excerpt">Esse é mais um dos artigos que apresentam uma visão peculiar do Go frente às demais...</p>
-                        </section>
-                    </a>
-                    <a class="post-nav-prev" href="https://diegofernando.dev/o-go-nao-foi-feito-pra-ser-bonito.html">
-                        <section class="post-nav-teaser">
-                            <i class="ic ic-arrow-right"></i>
-                                <h2 class="post-nav-title">O Go não foi feito pra ser bonito... e isso não deveria ser um problema.</h2>
-                            <p class="post-nav-excerpt">É isso mesmo que você leu: o Go não foi feito para ser bonito Essa frase, apesar de...</p>
-                        </section>
-                    </a>
-                    <div class="clear"></div>
-                </aside>
-
-            </div>
-        </article>
-    </main>
-      <!-- TODO : Body class -->
-    <div id="body-class" style="display: none;" class=""></div>
-
-    <footer id="footer">
-      <div class="inner">
-        <section class="credits">
-
-
-          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
-          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
-        </section>
-      </div>
-    </footer>
-  </section>
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
-  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
-
-    <!-- Global Site Tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178470984-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-178470984-1', { 'anonymize_ip': true });
+  <div class="discuss">
+    <p class="section-label">comentários</p>
+    <script src="https://giscus.app/client.js"
+      data-repo="diegofsousa/diegofsousa.github.io"
+      data-repo-id="MDEwOlJlcG9zaXRvcnkxMTAwOTM0NTE="
+      data-category="General"
+      data-category-id="DIC_kwDOBo_ki84DFguP"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="transparent_dark"
+      data-lang="pt"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
     </script>
-<script type="text/javascript">
-    var disqus_shortname = 'diegofsousa';
-    (function () {
-        var s = document.createElement('script'); s.async = true;
-        s.type = 'text/javascript';
-        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
-        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-</script>
+  </div>
+</article>
+
+  <footer class="site">
+    <div class="bio">
+      <div class="avatar">
+            <img src="/assets/images/eu-df.jpeg" alt="Diego Fernando">
+      </div>
+      <div class="who">
+        <b>Diego Fernando</b>
+<p>Engenheiro de software. Entusiasta de sistemas distribuídos, linguagens de programação e música brasileira. Nascido e criado com orgulho no nordeste do Brasil ❤️.</p>        <div class="links">
+<a href="https://github.com/diegofsousa" target="_blank" rel="noopener">github ↗</a><a href="https://www.linkedin.com/in/diegofsousa/" target="_blank" rel="noopener">linkedin ↗</a>        </div>
+      </div>
+    </div>
+    <span class="copyline">© 2026 diegofernando.dev</span>
+  </footer>
+
+  <script>
+    window.SITE_I18N = {
+      loading: "carregando \u00edndice...",
+      unavailable: "Busca indispon\u00edvel no momento.",
+      noResultsFor: "Nenhum resultado pra",
+      copy: "copiar",
+      copied: "copiado!"
+    };
+  </script>
+  <script type="text/javascript" src="https://diegofernando.dev/theme/js/script.js"></script>
+    <!-- Cloudflare Web Analytics -->
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "314a3fdb9c9a47e8ba0d1bde9b8636d1"}'></script>
+    <!-- End Cloudflare Web Analytics -->
 </body>
 </html>
